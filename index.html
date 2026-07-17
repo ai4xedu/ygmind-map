@@ -1,0 +1,2814 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YGmind — Mind mapping</title>
+<style>
+  :root{
+    --bg:#f3f5f8; --panel:#ffffff; --ink:#1c2230; --muted:#69718a;
+    --line:#c7cdda; --accent:#3b82f6; --accent-ink:#ffffff; --border:#e2e6ee;
+    --hover:#eef1f7; --dot:#dde1ea; --panel-glass:rgba(255,255,255,.86);
+    --danger:#dc2626;
+    --shadow-1:0 1px 2px rgba(15,23,42,.06), 0 4px 14px rgba(15,23,42,.05);
+    --node-shadow:drop-shadow(0 1.5px 3px rgba(15,23,42,.14));
+  }
+  body[data-theme="dark"]{
+    --bg:#11141b; --panel:#1a1f2b; --ink:#e8ebf2; --muted:#98a1b5;
+    --line:#39415a; --accent:#6ea8ff; --accent-ink:#0d1523; --border:#2a3145;
+    --hover:#242b3c; --dot:#232a3a; --panel-glass:rgba(26,31,43,.88);
+    --danger:#f87171;
+    --shadow-1:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+    --node-shadow:drop-shadow(0 2px 5px rgba(0,0,0,.45));
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--ink); background:var(--bg); overflow:hidden;
+    -webkit-user-select:none; user-select:none;
+    transition:background .25s, color .25s;
+  }
+  #toolbar{
+    position:fixed; inset:0 0 auto 0; height:52px; z-index:10;
+    display:flex; align-items:center; gap:4px; padding:0 12px;
+    background:var(--panel-glass); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    box-shadow:var(--shadow-1); flex-wrap:nowrap; overflow-x:auto; scrollbar-width:thin;
+  }
+  #toolbar .brand{font-weight:800; letter-spacing:.2px; margin-right:10px; white-space:nowrap; font-size:15px}
+  #toolbar .brand span{color:var(--accent)}
+  .sep{width:1px; height:22px; background:var(--border); margin:0 5px; flex:none}
+  button.tb{
+    display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 10px;
+    border:1px solid transparent; background:transparent; color:var(--ink);
+    border-radius:9px; font-size:12.5px; font-weight:500; cursor:pointer; white-space:nowrap; flex:none;
+    transition:background .12s, border-color .12s;
+  }
+  button.tb:hover{background:var(--hover)}
+  button.tb:active{transform:translateY(1px)}
+  button.tb:disabled{opacity:.32; cursor:default}
+  button.tb:disabled:hover{background:transparent}
+  button.tb.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600}
+  button.tb.primary:hover{filter:brightness(1.07)}
+  .swatches{display:flex; gap:5px; align-items:center; flex:none; padding:0 2px}
+  .swatches .lbl{font-size:12px; color:var(--muted); margin-right:2px; white-space:nowrap}
+  .swatch{width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid var(--panel); box-shadow:0 0 0 1px var(--border); transition:transform .1s}
+  .swatch:hover{transform:scale(1.15)}
+  .swatch.active{box-shadow:0 0 0 2px var(--accent)}
+  /* Menu contextuel (clic droit sur un nœud) */
+  #ctxmenu{position:fixed; z-index:50; display:none; background:var(--panel); border:1px solid var(--border);
+    border-radius:12px; box-shadow:0 12px 34px rgba(0,0,0,.24); padding:6px; min-width:196px; user-select:none}
+  #ctxmenu .ctx-colors{display:flex; gap:7px; flex-wrap:wrap; padding:7px 8px 7px}
+  #ctxmenu .ctx-swatch{width:24px; height:24px; border-radius:50%; border:2px solid var(--panel); box-shadow:0 0 0 1px var(--border);
+    cursor:pointer; padding:0; transition:transform .1s}
+  #ctxmenu .ctx-swatch:hover{transform:scale(1.14)}
+  #ctxmenu .ctx-swatch.active{box-shadow:0 0 0 2px var(--accent)}
+  #ctxmenu .ctx-prio{display:flex; gap:6px; align-items:center; padding:2px 8px 8px}
+  #ctxmenu .prio-chip{width:24px; height:24px; border-radius:8px; border:0; font-size:12px; font-weight:800;
+    cursor:pointer; display:inline-flex; align-items:center; justify-content:center; opacity:.88; padding:0;
+    transition:transform .1s}
+  #ctxmenu .prio-chip:hover{transform:scale(1.12); opacity:1}
+  #ctxmenu .prio-chip.active{outline:2px solid var(--ink); outline-offset:1px; opacity:1}
+  #ctxmenu .prio-chip.none{background:transparent; border:1px dashed var(--border); color:var(--muted)}
+  #ctxmenu .ctx-sep{height:1px; background:var(--border); margin:4px 2px}
+  #ctxmenu .ctx-item{display:block; width:100%; text-align:left; background:none; border:0; padding:8px 10px;
+    border-radius:8px; font-size:13px; cursor:pointer; color:var(--ink)}
+  #ctxmenu .ctx-item:hover{background:var(--hover)}
+  #ctxmenu .ctx-item.danger{color:var(--danger)}
+  #breadcrumb{position:fixed; top:52px; left:0; right:0; z-index:12; display:none; align-items:center; gap:2px;
+    padding:6px 12px; background:var(--panel-glass); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border); overflow-x:auto; white-space:nowrap}
+  #breadcrumb.open{display:flex}
+  #breadcrumb .bc-exit{border:1px solid var(--border); background:var(--panel); border-radius:8px; padding:4px 9px;
+    font-size:12px; cursor:pointer; color:var(--danger); margin-right:6px; flex:none}
+  #breadcrumb .bc-exit:hover{background:var(--hover)}
+  #breadcrumb .bc-sep{color:var(--muted); font-size:12px; flex:none}
+  #breadcrumb .bc-item{border:0; background:none; padding:4px 6px; border-radius:6px; font-size:12.5px;
+    cursor:pointer; color:var(--muted); flex:none; max-width:220px; overflow:hidden; text-overflow:ellipsis}
+  #breadcrumb .bc-item:hover{background:var(--hover); color:var(--ink)}
+  #breadcrumb .bc-item.cur{color:var(--ink); font-weight:600}
+  #stage{position:fixed; inset:52px 0 0 0; touch-action:none}
+  svg{width:100%; height:100%; display:block; background:
+    radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0) 0 0/22px 22px, var(--bg);
+    cursor:grab; transition:background .25s}
+  svg.panning{cursor:grabbing}
+  .edge{fill:none; stroke:var(--line); stroke-width:2}
+  .node rect{stroke:rgba(15,23,42,.10); stroke-width:1; filter:var(--node-shadow)}
+  body[data-theme="dark"] .node rect{stroke:rgba(255,255,255,.07)}
+  .node text{font-size:15px; font-weight:500; dominant-baseline:middle; pointer-events:none}
+  .node:hover rect{stroke:var(--accent); stroke-width:1.4; cursor:pointer}
+  .node.rootnode rect{stroke:var(--accent); stroke-width:1.8}
+  .node.selected rect{stroke:var(--accent); stroke-width:2.5;
+    filter:var(--node-shadow) drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 55%, transparent))}
+  .node .toggle{fill:var(--panel); stroke:var(--muted); stroke-width:1.5; cursor:pointer}
+  .node .linkbadge{cursor:pointer}
+  .node .prio{cursor:pointer}
+  .node .toggle-sign{stroke:var(--muted); stroke-width:1.5; pointer-events:none}
+  .node.drop-target rect{stroke:#22c55e; stroke-width:3; stroke-dasharray:5 3}
+  .node.dragging{opacity:.4}
+  /* Images flottantes */
+  .imgnode{cursor:move}
+  .imgnode image{filter:var(--node-shadow)}
+  .imgnode .imgsel{stroke:var(--accent); stroke-width:2; pointer-events:none}
+  .imgnode .imghandle{fill:var(--accent); stroke:#fff; stroke-width:1.5; cursor:nwse-resize}
+  .imgnode .imgdel{cursor:pointer}
+  /* Post-it */
+  .sticky{cursor:move}
+  .sticky rect.stickybg{filter:var(--node-shadow); stroke:rgba(15,23,42,.14); stroke-width:1}
+  .sticky text{font-size:15px; dominant-baseline:middle; pointer-events:none}
+  .sticky:hover rect.stickybg{stroke:var(--accent)}
+  .sticky.selected rect.stickybg{stroke:var(--accent); stroke-width:2}
+  .sticky .stickyhandle{fill:var(--accent); stroke:#fff; stroke-width:1.5; cursor:nwse-resize}
+  .sticky .stickydel{cursor:pointer}
+  #editor{
+    position:fixed; z-index:20; display:none; margin:0; padding:6px 12px;
+    border:2px solid var(--accent); border-radius:10px; outline:none; resize:none;
+    font-family:inherit; line-height:20px; overflow:hidden; color:var(--ink);
+    box-shadow:0 6px 20px rgba(0,0,0,.15);
+  }
+  /* Panneau de notes (à droite) */
+  #notepanel{
+    position:fixed; top:52px; right:0; bottom:0; width:330px; z-index:15; display:none;
+    flex-direction:column; background:var(--panel); border-left:1px solid var(--border);
+    box-shadow:-6px 0 20px rgba(0,0,0,.06);
+  }
+  #notepanel.open{display:flex}
+  #notepanel .np-head{display:flex; align-items:center; gap:8px; padding:12px 14px; border-bottom:1px solid var(--border)}
+  #notepanel .np-head .np-ic{font-size:15px}
+  #notepanel .np-head #npTitle{flex:1; font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  #notepanel .np-head button{border:0; background:none; font-size:16px; cursor:pointer; color:var(--muted); padding:2px 6px; border-radius:6px}
+  #notepanel .np-head button:hover{background:var(--hover)}
+  #npText{flex:1; border:0; outline:none; resize:none; padding:14px; font-family:inherit; font-size:14px;
+    line-height:1.6; color:var(--ink); background:transparent}
+  /* Fenêtre modale (import Markdown) */
+  #modal{position:fixed; inset:0; z-index:40; display:none; align-items:center; justify-content:center;
+    background:rgba(20,24,34,.38)}
+  #modal.open{display:flex}
+  #modal .mbox{width:min(560px,92vw); background:var(--panel); border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.3);
+    padding:18px; display:flex; flex-direction:column; gap:12px}
+  #modal .mbox h3{margin:0; font-size:16px}
+  #modal .mbox p{margin:0; font-size:12.5px; color:var(--muted); line-height:1.5}
+  #modal textarea{height:230px; resize:vertical; border:1px solid var(--border); border-radius:10px; padding:10px 12px;
+    font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; line-height:1.5; outline:none;
+    color:var(--ink); background:var(--bg)}
+  #modal .mrow{display:flex; justify-content:flex-end; gap:8px}
+  #modal .mrow .tb{border:1px solid var(--border)}
+  #hint{
+    position:fixed; left:12px; bottom:12px; z-index:5; max-width:340px;
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:10px 12px; font-size:12px; color:var(--muted); line-height:1.55;
+    box-shadow:0 4px 14px rgba(0,0,0,.06);
+  }
+  #hint b{color:var(--ink)}
+  #hint kbd{background:var(--hover); border:1px solid var(--border); border-bottom-width:2px;
+    border-radius:5px; padding:1px 6px; font-family:ui-monospace,monospace; font-size:11px; color:var(--ink)}
+  #hint .close{position:absolute; top:6px; right:8px; cursor:pointer; color:var(--muted)}
+  /* Écran d'accueil (bibliothèque de cartes) */
+  #home{position:fixed; inset:0; z-index:45; display:none; flex-direction:column; background:var(--bg)}
+  #home.open{display:flex}
+  #home .home-head{display:flex; align-items:center; gap:12px; padding:16px 22px; border-bottom:1px solid var(--border);
+    background:var(--panel)}
+  #home .home-title{font-weight:800; font-size:18px; letter-spacing:.2px}
+  #home .home-title span{color:var(--accent)}
+  #home .home-actions{margin-left:auto; display:flex; gap:8px}
+  #home .home-actions .tb{border:1px solid var(--border)}
+  #home .home-grid{flex:1; overflow-y:auto; padding:22px;
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:18px; align-content:start}
+  .mapcard{border:1px solid var(--border); border-radius:14px; background:var(--panel); overflow:hidden;
+    cursor:pointer; display:flex; flex-direction:column; box-shadow:var(--shadow-1); transition:transform .1s, border-color .12s}
+  .mapcard:hover{transform:translateY(-2px); border-color:var(--accent)}
+  .mapcard.current{border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent), var(--shadow-1)}
+  .mapcard .thumb{height:140px; background:var(--bg) center/cover no-repeat;
+    display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:34px; border-bottom:1px solid var(--border)}
+  .mapcard .meta{padding:10px 12px; display:flex; flex-direction:column; gap:2px}
+  .mapcard .mname{font-weight:600; font-size:13.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .mapcard .mdate{font-size:11.5px; color:var(--muted)}
+  .mapcard .badge-cur{align-self:flex-start; margin-top:3px; font-size:10.5px; font-weight:700;
+    color:var(--accent-ink); background:var(--accent); border-radius:999px; padding:1px 8px}
+  .mapcard .mrow{display:flex; gap:2px; padding:0 8px 9px}
+  .mapcard .mrow button{flex:1; border:1px solid var(--border); background:transparent; color:var(--ink);
+    border-radius:7px; padding:5px 0; font-size:12px; cursor:pointer}
+  .mapcard .mrow button:hover{background:var(--hover)}
+  .mapcard .mrow button.del:hover{background:#fee2e2; color:#dc2626; border-color:#fca5a5}
+  #selinfo{position:fixed; left:50%; transform:translateX(-50%); bottom:16px; z-index:14; display:none;
+    background:var(--accent); color:var(--accent-ink); font-size:12.5px; font-weight:600;
+    padding:7px 14px; border-radius:999px; box-shadow:var(--shadow-1); white-space:nowrap}
+  #selinfo.open{display:block}
+  #zoombar{position:fixed; right:14px; bottom:14px; z-index:5; display:flex; gap:6px; align-items:center}
+  #zoombar button{width:34px; height:34px; border-radius:9px; border:1px solid var(--border);
+    background:var(--panel); color:var(--ink); cursor:pointer; font-size:17px; box-shadow:var(--shadow-1)}
+  #zoombar button:hover{background:var(--hover)}
+  #zoombar .pct{font-size:12px; color:var(--muted); min-width:40px; text-align:center}
+</style>
+</head>
+<body>
+  <div id="toolbar">
+    <div class="brand">YG<span>mind</span></div>
+    <button class="tb" id="btnHome" title="Mes cartes (bibliothèque)">🗂 Cartes</button>
+    <div class="sep"></div>
+    <button class="tb" id="btnUndo" title="Annuler (Cmd/Ctrl+Z)" disabled>↶</button>
+    <button class="tb" id="btnRedo" title="Rétablir (Cmd/Ctrl+Shift+Z)" disabled>↷</button>
+    <div class="sep"></div>
+    <button class="tb primary" id="btnChild" title="Ajouter un enfant (Tab)">＋ Enfant</button>
+    <button class="tb" id="btnSibling" title="Ajouter un frère (Entrée)">＋ Frère</button>
+    <button class="tb" id="btnDelete" title="Supprimer (Suppr)">🗑 Supprimer</button>
+    <button class="tb" id="btnLink" title="Ajouter / modifier un lien URL">🔗 Lien</button>
+    <button class="tb" id="btnImage" title="Ajouter une image (ou colle avec Cmd/Ctrl+V, ou glisse un fichier sur la carte)">📷 Image</button>
+    <button class="tb" id="btnSticky" title="Ajouter un post-it libre sur la carte">🗒 Post-it</button>
+    <input type="file" id="imgInput" accept="image/*" style="display:none">
+    <div class="sep"></div>
+    <div class="swatches" id="swatches"><span class="lbl">🎨 Couleur</span></div>
+    <div class="sep"></div>
+    <button class="tb" id="btnFit" title="Ajuster à l'écran (F)">⤢ Ajuster</button>
+    <button class="tb" id="btnFocus" title="Isoler le nœud sélectionné (Échap pour sortir)">🔍 Focus</button>
+    <button class="tb" id="btnCollapseAll">⊟ Tout replier</button>
+    <div class="sep"></div>
+    <button class="tb" id="btnExpand" title="Développer le nœud sélectionné avec l'IA (Claude)">✨ Développer</button>
+    <button class="tb" id="btnAiKey" title="Configurer la clé API Claude (stockée localement)">⚙︎</button>
+    <div class="sep"></div>
+    <button class="tb" id="btnPng">🖼 PNG</button>
+    <button class="tb" id="btnPdf">📄 PDF</button>
+    <button class="tb" id="btnMdImport" title="Importer une liste / du Markdown">📥 Markdown</button>
+    <button class="tb" id="btnMdExport" title="Exporter en Markdown">📝 .md</button>
+    <button class="tb" id="btnSave" title="Enregistrer dans un fichier .ygmind (Cmd/Ctrl+S)">💾 Enregistrer</button>
+    <button class="tb" id="btnLoad" title="Ouvrir un fichier .json (YGmind) ou .xmind (import XMind)">📂 Ouvrir</button>
+    <button class="tb" id="btnPublish" title="Générer les fichiers pour publier cette carte sur un lien web (GitHub Pages, Netlify…)">🌐 Publier</button>
+    <button class="tb" id="btnNew" title="Créer une nouvelle carte">✦ Nouvelle carte</button>
+    <div class="sep"></div>
+    <button class="tb" id="btnTheme" title="Basculer thème clair / sombre">🌙</button>
+    <input type="file" id="fileInput" accept="application/json,.json,.ygmind,.xmind,text/html,.html,.htm,.xhtml" style="display:none">
+  </div>
+
+  <div id="breadcrumb"></div>
+  <div id="selinfo"></div>
+
+  <div id="home">
+    <div class="home-head">
+      <div class="home-title">YG<span>mind</span> · Mes cartes</div>
+      <div class="home-actions">
+        <button class="tb primary" id="homeNew">＋ Nouvelle carte</button>
+        <button class="tb" id="homeImport">📂 Importer .json / .xmind</button>
+        <button class="tb" id="homeClose" title="Revenir à la carte">✕ Fermer</button>
+      </div>
+    </div>
+    <div class="home-grid" id="homeGrid"></div>
+  </div>
+
+  <div id="stage">
+    <svg id="svg"><g id="vp"></g></svg>
+  </div>
+
+  <textarea id="editor" rows="1" spellcheck="false"></textarea>
+
+  <div id="notepanel">
+    <div class="np-head"><span class="np-ic">📝</span><span id="npTitle">Note</span><button id="npClose" title="Fermer">✕</button></div>
+    <textarea id="npText" spellcheck="false" placeholder="Écris ta note ici… (sauvegarde automatique)"></textarea>
+  </div>
+
+  <div id="modal">
+    <div class="mbox">
+      <h3>Importer du Markdown / plan</h3>
+      <p>Colle une liste à puces indentée (ou des titres <code>#</code>). Chaque niveau d'indentation devient une branche. La première ligne de niveau 0 devient le centre.</p>
+      <textarea id="mdText" spellcheck="false" placeholder="# Mon sujet&#10;- Idée 1&#10;  - Détail A&#10;  - Détail B&#10;- Idée 2"></textarea>
+      <div class="mrow">
+        <button class="tb" id="mdCancel">Annuler</button>
+        <button class="tb primary" id="mdImport">Importer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="zoombar">
+    <button id="zOut">−</button>
+    <div class="pct" id="zPct">100%</div>
+    <button id="zIn">＋</button>
+  </div>
+
+  <div id="hint">
+    <span class="close" id="hintClose">✕</span>
+    <b>Raccourcis</b><br>
+    <kbd>Tab</kbd> enfant · <kbd>Entrée</kbd> frère · <kbd>F2</kbd>/double-clic éditer<br>
+    <kbd>Suppr</kbd> supprimer · <kbd>Espace</kbd> replier · <kbd>F</kbd> ajuster · <kbd>Échap</kbd> sortir du focus<br>
+    <kbd>⌘Z</kbd> annuler · <kbd>⌘⇧Z</kbd> rétablir<br>
+    <b>Sélection</b> : <kbd>⌘A</kbd> tout · <kbd>⇧clic</kbd> ajouter/retirer · <kbd>⇧glisser</kbd> sur le fond = lasso<br>
+    Glisser au <b>centre</b> d'un nœud = enfant · sur le <b>bord haut/bas</b> = insérer avant/après<br>
+    <kbd>⌘↑</kbd>/<kbd>⌘↓</kbd> réordonner les frères · <kbd>⌘S</kbd> enregistrer (fichier) · molette = zoom<br>
+    <kbd>1</kbd>–<kbd>6</kbd> priorité (<kbd>0</kbd> retirer, cliquer le badge = suivante)<br>
+    <b>Images</b> : bouton 📷, <kbd>⌘V</kbd> coller, ou glisser un fichier · déplacer/redimensionner à la souris<br>
+    <b>Post-it</b> : bouton 🗒 · double-clic pour écrire · clic droit = couleur<br>
+    <b>Clic droit</b> sur un nœud = couleur, priorité, note, tâche, actions
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Config ----------
+  const H_GAP = 64, V_GAP = 16, PAD_H = 14, PAD_V = 9, LINE = 20, MIN_W = 44, MAX_TEXT_W = 210;
+  const FONT = '500 15px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+  const STORE_KEY = "ygmind.doc.v1";
+  const PALETTE = ["#ffffff","#dbeafe","#dcfce7","#fef9c3","#ffe4e6","#f3e8ff","#e0e7ff","#fed7aa"];
+  const P_COLORS = {1:"#ef4444",2:"#f97316",3:"#eab308",4:"#22c55e",5:"#3b82f6",6:"#8b5cf6"}; // priorités 1-6
+
+  // ---------- Thème (clair / sombre) ----------
+  const THEMES = {
+    light:{ nodeFill:"#ffffff", pill:"#eef2f7", pillStroke:"#c8ccd6", pillText:"#4b5563" },
+    dark: { nodeFill:"#242b3a", pill:"#2a3242", pillStroke:"#3a4356", pillText:"#aab3c5" }
+  };
+  const THEME_KEY = "ygmind.theme";
+  let theme = (function(){
+    try{ const t = localStorage.getItem(THEME_KEY); if(t==="dark"||t==="light") return t; }catch(e){}
+    return (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  })();
+  function applyTheme(){
+    document.body.dataset.theme = theme;
+    const b = document.getElementById("btnTheme");
+    if(b) b.textContent = theme==="dark" ? "☀️" : "🌙";
+  }
+  // Fond effectif d'un nœud : le blanc « par défaut » suit le thème (surface sombre en mode nuit).
+  function effFill(n, t){
+    const th = THEMES[t || theme];
+    const c = (n.color||"").trim();
+    if(!/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c) || /^#(fff|ffffff)$/i.test(c)) return th.nodeFill;
+    return c;
+  }
+  // Couleur de texte lisible sur un fond donné (contraste automatique).
+  function textColorFor(hex){
+    const m = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})/.exec(hex||"");
+    if(!m) return theme==="dark" ? "#e8ebf2" : "#1c2230";
+    let c = m[1]; if(c.length===3) c = c.split("").map(x=>x+x).join("");
+    const r=parseInt(c.slice(0,2),16), g=parseInt(c.slice(2,4),16), b=parseInt(c.slice(4,6),16);
+    return (0.299*r + 0.587*g + 0.114*b) > 150 ? "#1c2230" : "#f2f5fa";
+  }
+
+  // ---------- State ----------
+  let root, selectedId = null, editingId = null;
+  let images = [];              // images flottantes : {id, src(dataURL), x, y, w, h}
+  let selectedImageId = null;
+  let stickies = [];            // post-it libres : {id, text, x, y, w, h, color}
+  let selectedStickyId = null, editingStickyId = null;
+  // Sélection multiple : `sel` fait foi (nœuds + images + post-it).
+  // selectedId / selectedImageId / selectedStickyId en sont dérivés (ancre + sélection unique).
+  let sel = new Set();
+  const view = { tx: 0, ty: 0, s: 1 };
+  let uid = 1;
+  const nid = () => "n" + (uid++) + "_" + Math.floor(performance.now()) % 100000;
+  const iid = () => "img" + (uid++) + "_" + Math.floor(performance.now()) % 100000;
+  const sid = () => "st" + (uid++) + "_" + Math.floor(performance.now()) % 100000;
+  const MAX_IMG_DIM = 1000;     // redimensionnement à l'import (poids du stockage local)
+  const STICKY_COLORS = ["#fff59d","#ffcc9c","#f8bbd0","#c5e1a5","#b3e5fc","#e1bee7"]; // palette post-it
+
+  // ---------- DOM ----------
+  const svg = document.getElementById("svg");
+  const vp = document.getElementById("vp");
+  const editor = document.getElementById("editor");
+  const zPct = document.getElementById("zPct");
+  const homeEl = document.getElementById("home");
+
+  // ---------- Text measurement + wrap ----------
+  const mctx = document.createElement("canvas").getContext("2d");
+  function measure(t){ mctx.font = FONT; return mctx.measureText(t).width; }
+  function wrap(text, maxW){
+    const lim = maxW || MAX_TEXT_W;
+    const paras = String(text).split("\n");
+    const lines = [];
+    for(const para of paras){
+      const words = para.split(/\s+/).filter(Boolean);
+      if(words.length === 0){ lines.push(""); continue; }
+      let cur = "";
+      for(const w of words){
+        const test = cur ? cur + " " + w : w;
+        if(measure(test) > lim && cur){ lines.push(cur); cur = w; }
+        else cur = test;
+      }
+      if(cur) lines.push(cur);
+    }
+    return lines.length ? lines : [""];
+  }
+
+  // ---------- Tree helpers ----------
+  function makeNode(text, color){ return { id: nid(), text: text||"", color: color||"#ffffff", link:"", note:"", check:null, priority:null, collapsed:false, children:[] }; }
+  function find(id, node=root, parent=null){
+    if(node.id === id) return { node, parent };
+    for(const c of node.children){ const r = find(id, c, node); if(r) return r; }
+    return null;
+  }
+  function isDescendant(ancestor, id){
+    if(ancestor.id === id) return true;
+    return ancestor.children.some(c => isDescendant(c, id));
+  }
+  // Avancement des tâches dans les descendants (hors le nœud lui-même).
+  // Lecture rapide : le rendu utilise n._prog, précalculé en UNE passe (computeProgress) → O(n) global
+  // au lieu d'un taskProgress(n) par nœud qui reparcourait tout le sous-arbre → O(n²).
+  function taskProgress(node){ return node._prog || computeProgressNode(node); }
+  // TOUJOURS recalculer (une passe complète) : ne jamais lire un _prog mis en cache au
+  // render précédent, sinon la progression se fige. La mémoïsation n'est valide qu'À
+  // L'INTÉRIEUR d'une passe (chaque enfant est calculé juste avant d'être lu).
+  function computeProgressNode(n){
+    let done=0, total=0;
+    for(const c of n.children){
+      computeProgressNode(c);            // recalcule c._prog systématiquement
+      if(c.check!=null){ total++; if(c.check) done++; }
+      done += c._prog.done; total += c._prog.total;
+    }
+    n._prog = { done, total };
+    return n._prog;
+  }
+  // Une seule passe descendante-remontante sur TOUT l'arbre (indépendante du repli/focus).
+  function computeProgress(){ computeProgressNode(root); }
+
+  // ---------- Layout ----------
+  let bbox = {minX:0,minY:0,maxX:0,maxY:0};
+  let focusId = null; // nœud isolé (mode Focus) ; null = carte entière
+  // Racine affichée : le nœud focalisé (traité comme racine) ou la vraie racine.
+  function displayRoot(){ const f = focusId && find(focusId); return f ? f.node : root; }
+  function layout(){
+    computeProgress();      // précalcule n._prog pour tout l'arbre (une passe)
+    let cursorY = 0;
+    (function place(node, x, isTop){
+      const lines = wrap(node.text);
+      node._lines = lines;
+      node._cbW = (node.check!=null) ? 22 : 0; // largeur réservée pour la case à cocher
+      node._pW = (node.priority!=null) ? 24 : 0; // largeur réservée pour le badge de priorité
+      node.w = Math.max(MIN_W, Math.max(...lines.map(measure)) + PAD_H*2) + node._cbW + node._pW;
+      node.h = lines.length*LINE + PAD_V*2;
+      node.x = x;
+      const kids = (node.collapsed && !isTop) ? [] : node.children;
+      if(kids.length === 0){
+        node.y = cursorY + node.h/2;
+        cursorY += node.h + V_GAP;
+      } else {
+        const childX = x + node.w + H_GAP;
+        kids.forEach(k => place(k, childX, false));
+        node.y = (kids[0].y + kids[kids.length-1].y)/2;
+      }
+    })(displayRoot(), 0, true);
+
+    // bbox
+    let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;
+    (function walk(n, isTop){
+      minX=Math.min(minX,n.x); minY=Math.min(minY,n.y-n.h/2);
+      maxX=Math.max(maxX,n.x+n.w); maxY=Math.max(maxY,n.y+n.h/2);
+      if(isTop || !n.collapsed) n.children.forEach(c=>walk(c,false));
+    })(displayRoot(), true);
+    if(!focusId){ // les objets flottants comptent dans le cadre (Ajuster / export)
+      for(const o of images.concat(stickies)){
+        minX=Math.min(minX,o.x); minY=Math.min(minY,o.y);
+        maxX=Math.max(maxX,o.x+o.w); maxY=Math.max(maxY,o.y+o.h);
+      }
+    }
+    bbox = {minX,minY,maxX,maxY};
+  }
+
+  // ---------- Render ----------
+  function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+  function nodeSVG(n){
+    const isRoot = n === displayRoot();
+    const cls = "node" + (sel.has(n.id)?" selected":"") + (isRoot?" rootnode":"");
+    const y0 = n.y - n.h/2;
+    const leftPad = (n._pW||0) + (n._cbW||0);
+    const textCx = n.x + leftPad + (n.w - leftPad)/2;
+    let tspans = "";
+    const startY = y0 + PAD_V + LINE/2;
+    n._lines.forEach((ln,i)=>{ tspans += `<tspan x="${textCx}" y="${startY + i*LINE}">${esc(ln)}</tspan>`; });
+    const eff = effFill(n);
+    const textFill = textColorFor(eff);
+    const topacity = n.check ? ' fill-opacity="0.55"' : '';
+    const deco = n.check ? ' text-decoration="line-through"' : '';
+    // Badge de priorité (1-6)
+    let prio = "";
+    if(n.priority!=null){
+      const pc = P_COLORS[n.priority] || "#6b7280";
+      const pxc = n.x + 15, pyc = n.y;
+      prio = `<g class="prio" data-prio="${n.id}"><title>Priorité ${n.priority} — cliquer : suivante</title>`
+        + `<circle cx="${pxc}" cy="${pyc}" r="9" fill="${pc}"/>`
+        + `<text x="${pxc}" y="${pyc+0.5}" fill="${textColorFor(pc)}" style="font-size:11px;font-weight:800" text-anchor="middle" pointer-events="none">${n.priority}</text></g>`;
+    }
+    // Case à cocher (tâche)
+    let checkbox = "";
+    if(n.check!=null){
+      const bx = n.x + 7 + (n._pW||0), by = n.y-7, s = 14;
+      const mark = n.check ? `<path d="M ${bx+3} ${by+7} L ${bx+6} ${by+10.5} L ${bx+11} ${by+3.5}" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : "";
+      checkbox = `<g class="checkbox" data-check="${n.id}">`
+        + `<rect x="${bx}" y="${by}" width="${s}" height="${s}" rx="4" fill="${n.check?'#22c55e':'#ffffff'}" stroke="${n.check?'#22c55e':'#9aa0ab'}" stroke-width="1.5"/>${mark}</g>`;
+    }
+    let toggle = "";
+    if(n.children.length){
+      const cx = n.x + n.w, cy = n.y, r = 8;
+      const sign = n.collapsed
+        ? `<line class="toggle-sign" x1="${cx-4}" y1="${cy}" x2="${cx+4}" y2="${cy}"/><line class="toggle-sign" x1="${cx}" y1="${cy-4}" x2="${cx}" y2="${cy+4}"/>`
+        : `<line class="toggle-sign" x1="${cx-4}" y1="${cy}" x2="${cx+4}" y2="${cy}"/>`;
+      toggle = `<circle class="toggle" data-toggle="${n.id}" cx="${cx}" cy="${cy}" r="${r}"/>${sign}`;
+    }
+    let linkBadge = "";
+    if(n.link){
+      const lx = n.x + n.w, ly = y0; // coin haut-droit
+      linkBadge = `<g class="linkbadge" data-link="${n.id}"><title>${esc(n.link)}</title>`
+        + `<circle cx="${lx}" cy="${ly}" r="9" fill="#3b82f6" stroke="#fff" stroke-width="1.5"/>`
+        + `<path d="M ${lx-3.2} ${ly+3.2} L ${lx+3.2} ${ly-3.2} M ${lx+0.2} ${ly-3.4} L ${lx+3.4} ${ly-3.4} L ${lx+3.4} ${ly-0.2}" `
+        + `fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+    }
+    // Badge note (coin bas-droit)
+    let noteBadge = "";
+    if(n.note && n.note.trim()){
+      const nx = n.x + n.w, ny = n.y + n.h/2;
+      noteBadge = `<g class="notebadge" data-note="${n.id}"><title>Note (cliquer pour ouvrir)</title>`
+        + `<circle cx="${nx}" cy="${ny}" r="8" fill="#f59e0b" stroke="#fff" stroke-width="1.5"/>`
+        + `<line x1="${nx-3}" y1="${ny-2.4}" x2="${nx+3}" y2="${ny-2.4}" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>`
+        + `<line x1="${nx-3}" y1="${ny}" x2="${nx+3}" y2="${ny}" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>`
+        + `<line x1="${nx-3}" y1="${ny+2.4}" x2="${nx+1}" y2="${ny+2.4}" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></g>`;
+    }
+    // Badge d'avancement des tâches enfants (au-dessus, à gauche)
+    let progress = "";
+    const pg = taskProgress(n);
+    if(pg.total>0){
+      const th = THEMES[theme];
+      const label = pg.done + "/" + pg.total, allDone = pg.done===pg.total;
+      const pw = label.length*7 + 12, ph = 16, px = n.x, py = y0 - ph - 3;
+      progress = `<g class="progress">`
+        + `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="8" fill="${allDone?'#dcfce7':th.pill}" stroke="${allDone?'#22c55e':th.pillStroke}" stroke-width="1"/>`
+        + `<text x="${px+pw/2}" y="${py+ph/2+0.5}" fill="${allDone?'#15803d':th.pillText}" style="font-size:10px;font-weight:700" text-anchor="middle" pointer-events="none">${label}</text></g>`;
+    }
+    return `<g class="${cls}" data-id="${n.id}">${n.link?`<title>${esc(n.link)}</title>`:""}
+      <rect data-id="${n.id}" x="${n.x}" y="${y0}" width="${n.w}" height="${n.h}" rx="10" ry="10" fill="${eff}"/>
+      <text data-id="${n.id}" fill="${textFill}"${deco}${topacity} text-anchor="middle">${tspans}</text>
+      ${prio}${checkbox}${toggle}${linkBadge}${noteBadge}${progress}</g>`;
+  }
+  function edgesSVG(){
+    let out = "";
+    (function walk(n, isTop){
+      if(n.collapsed && !isTop) return;
+      for(const c of n.children){
+        const px = n.x + n.w, py = n.y, cx = c.x, cy = c.y, mid = (cx-px)/2;
+        out += `<path class="edge" d="M ${px} ${py} C ${px+mid} ${py}, ${cx-mid} ${cy}, ${cx} ${cy}"/>`;
+        walk(c, false);
+      }
+    })(displayRoot(), true);
+    return out;
+  }
+  function nodesSVG(){
+    let out = "";
+    (function walk(n, isTop){ out += nodeSVG(n); if(isTop || !n.collapsed) n.children.forEach(c=>walk(c,false)); })(displayRoot(), true);
+    return out;
+  }
+  // Images flottantes — masquées en mode Focus (leurs coordonnées suivent la carte complète)
+  function imagesSVG(){
+    if(focusId) return "";
+    let out = "";
+    for(const im of images){
+      const isSel = sel.has(im.id);
+      out += `<g class="imgnode${isSel?" selected":""}" data-img="${im.id}">`
+        + `<image data-img="${im.id}" href="${esc(im.src)}" x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" preserveAspectRatio="none"/>`;
+      if(im.id===selectedImageId){ // poignées : sélection unique seulement
+        const rx = im.x+im.w, ry = im.y;
+        out += `<rect class="imgsel" x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" fill="none"/>`
+          + `<rect class="imghandle" data-imghandle="${im.id}" x="${im.x+im.w-7}" y="${im.y+im.h-7}" width="14" height="14" rx="3"/>`
+          + `<g class="imgdel" data-imgdel="${im.id}"><title>Supprimer l'image</title>`
+          + `<circle cx="${rx}" cy="${ry}" r="9" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>`
+          + `<path d="M ${rx-3.4} ${ry-3.4} L ${rx+3.4} ${ry+3.4} M ${rx+3.4} ${ry-3.4} L ${rx-3.4} ${ry+3.4}" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></g>`;
+      }
+      out += `</g>`;
+    }
+    return out;
+  }
+  // Post-it libres — masqués en mode Focus (coordonnées liées à la carte complète)
+  function stickiesSVG(){
+    if(focusId) return "";
+    let out = "";
+    for(const s of stickies){
+      const isSel = sel.has(s.id);
+      const ink = textColorFor(s.color);
+      const lines = wrap(s.text, s.w - 20);
+      const maxLines = Math.max(0, Math.floor((s.h - 14) / LINE));
+      const shown = lines.slice(0, maxLines);
+      if(lines.length > maxLines && shown.length) shown[shown.length-1] = shown[shown.length-1].replace(/.{1}$/, "…");
+      let tspans = "";
+      shown.forEach((ln,i)=>{ tspans += `<tspan x="${s.x+10}" y="${s.y+14+i*LINE}">${esc(ln)}</tspan>`; });
+      out += `<g class="sticky${isSel?" selected":""}" data-sticky="${s.id}">`
+        + `<rect class="stickybg" data-sticky="${s.id}" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="2" fill="${s.color}"/>`
+        + `<text data-sticky="${s.id}" fill="${ink}" text-anchor="start">${tspans}</text>`;
+      if(s.id===selectedStickyId){ // poignées : sélection unique seulement
+        const rx = s.x+s.w, ry = s.y;
+        out += `<rect class="stickyhandle" data-stickyhandle="${s.id}" x="${s.x+s.w-7}" y="${s.y+s.h-7}" width="14" height="14" rx="3"/>`
+          + `<g class="stickydel" data-stickydel="${s.id}"><title>Supprimer le post-it</title>`
+          + `<circle cx="${rx}" cy="${ry}" r="9" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>`
+          + `<path d="M ${rx-3.4} ${ry-3.4} L ${rx+3.4} ${ry+3.4} M ${rx+3.4} ${ry-3.4} L ${rx-3.4} ${ry+3.4}" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></g>`;
+      }
+      out += `</g>`;
+    }
+    return out;
+  }
+  function applyView(){
+    vp.setAttribute("transform", `translate(${view.tx} ${view.ty}) scale(${view.s})`);
+    zPct.textContent = Math.round(view.s*100) + "%";
+  }
+  function render(){
+    if(focusId && !find(focusId)) focusId = null; // nœud focalisé supprimé → carte entière
+    layout();
+    vp.innerHTML = imagesSVG() + stickiesSVG() + edgesSVG() + nodesSVG();
+    applyView();
+    if(typeof updateSwatchActive === "function") updateSwatchActive();
+    if(typeof renderBreadcrumb === "function") renderBreadcrumb();
+    renderSelInfo();
+    save();
+  }
+  function renderSelInfo(){
+    const el = document.getElementById("selinfo");
+    if(!el) return;
+    if(sel.size > 1){
+      el.textContent = sel.size + " objets sélectionnés — Suppr · couleur · 1-6 · Échap";
+      el.classList.add("open");
+    } else el.classList.remove("open");
+  }
+
+  // ---------- Mode Focus (isoler un sous-arbre) ----------
+  function setFocus(id){
+    const { node } = find(id) || {}; if(!node) return;
+    node.collapsed = false;
+    focusId = id; selSet(id);
+    render(); fit();
+  }
+  function clearFocus(){ if(!focusId) return; const id = focusId; focusId = null; selSet(id); render(); fit(); }
+  function renderBreadcrumb(){
+    const bar = document.getElementById("breadcrumb");
+    if(!bar) return;
+    if(!focusId){ bar.classList.remove("open"); bar.innerHTML = ""; return; }
+    const chain = pathToNode(focusId) || [];
+    let html = `<button class="bc-exit" data-bcexit="1" title="Sortir du focus (Échap)">✕ Vue complète</button>`;
+    chain.forEach((n, i)=>{
+      const last = i === chain.length-1;
+      html += `<span class="bc-sep">›</span>`;
+      html += `<button class="bc-item${last?" cur":""}" data-bcfocus="${n.id}">${esc((n.text||"Sans titre").slice(0,28))}</button>`;
+    });
+    bar.innerHTML = html;
+    bar.classList.add("open");
+  }
+
+  // ---------- Persistance multi-cartes ----------
+  // Index :  ygmind.maps.v1 = { v, currentId, maps:[{id,name,updatedAt}] }
+  // Doc    :  ygmind.map.<id>   = JSON d'une carte (serialize())
+  // Vignette: ygmind.thumb.<id> = dataURL (best-effort)
+  const MAPS_KEY = "ygmind.maps.v1";
+  const mapKey = id => "ygmind.map." + id;
+  const thumbKey = id => "ygmind.thumb." + id;
+  const newMapId = () => "map" + (uid++) + "_" + Math.floor(performance.now()) % 100000;
+  let currentMapId = null, mapsMeta = [];
+  let saveTimer = null, quotaWarned = false;
+
+  let saveFailed = false;      // la dernière écriture localStorage a-t-elle échoué (quota) ?
+  function quotaAlert(){
+    if(quotaWarned) return;
+    quotaWarned = true;
+    alert("⚠️ SAUVEGARDE IMPOSSIBLE — le stockage du navigateur est plein (souvent des images trop lourdes).\n\nTon travail récent N'EST PAS sauvegardé. Fais tout de suite Cmd/Ctrl+S pour enregistrer cette carte dans un fichier .ygmind sur ton disque, puis allège ou supprime des images.");
+  }
+  function saveMapsIndex(){
+    try{ localStorage.setItem(MAPS_KEY, JSON.stringify({ v:1, currentId: currentMapId, maps: mapsMeta })); return true; }
+    catch(e){ quotaAlert(); return false; }
+  }
+  // Écrit immédiatement la carte courante (utilisé avant un changement de carte).
+  function persistCurrent(){
+    if(!currentMapId) return;
+    try{
+      localStorage.setItem(mapKey(currentMapId), JSON.stringify(serialize()));
+      const m = mapsMeta.find(x=>x.id===currentMapId);
+      if(m){
+        m.updatedAt = Date.now();
+        // Le nom suit le nœud central, tant que l'utilisateur ne l'a pas figé via « Renommer ».
+        if(m.auto) m.name = (root.text||"").trim().slice(0,60) || "Sans titre";
+      }
+      saveMapsIndex();
+      quotaWarned = false;
+      saveFailed = false;
+      maybeCheckQuota();
+    }catch(e){
+      saveFailed = true;   // l'édition n'est PAS persistée — on le signale au lieu de l'avaler
+      quotaAlert();
+      updateSaveHint();
+    }
+  }
+  function save(){ fileDirty = true; if(typeof updateSaveHint==="function") updateSaveHint(); clearTimeout(saveTimer); saveTimer = setTimeout(persistCurrent, 250); }
+  // Purge le debounce et écrit immédiatement (fermeture d'onglet / changement de carte).
+  function flushSave(){ clearTimeout(saveTimer); persistCurrent(); }
+  // Avertissement PROACTIF : bien avant la saturation, on prévient à ~80% du quota.
+  let quotaChecking = false, quotaNearWarned = false;
+  function maybeCheckQuota(){
+    if(quotaChecking || quotaNearWarned) return;
+    if(!(navigator.storage && navigator.storage.estimate)) return;
+    quotaChecking = true;
+    navigator.storage.estimate().then(est=>{
+      quotaChecking = false;
+      if(est && est.quota && est.usage/est.quota > 0.8){
+        quotaNearWarned = true;
+        alert("⚠️ Ton stockage local est presque plein (" + Math.round(est.usage/est.quota*100) + "%).\n\nEnregistre tes cartes dans des fichiers .ygmind (Cmd/Ctrl+S) pour ne rien risquer, et allège les images.");
+      }
+    }).catch(()=>{ quotaChecking = false; });
+  }
+
+  // Exécute fn() avec un document temporaire en globals, puis restaure (pour créer/dupliquer sans afficher).
+  function withDoc(rootNode, imgs, sts, fn){
+    const or=root, oi=images, os=stickies;
+    root=rootNode; images=imgs||[]; stickies=sts||[];
+    try{ return fn(); } finally { root=or; images=oi; stickies=os; }
+  }
+  function docJsonFrom(rootNode, imgs, sts){ return withDoc(rootNode, imgs, sts, ()=>JSON.stringify(serialize())); }
+
+  // Charge un document (globals) et réinitialise l'état volatil.
+  function applyDoc(doc){
+    root = doc.root; images = doc.images || []; stickies = doc.stickies || [];
+    focusId = null; editingId = null; editingStickyId = null;
+    selectedImageId = null; selectedStickyId = null;
+    selSet(root.id);
+    undoStack.length = 0; redoStack.length = 0; updateHistoryButtons(); // l'historique ne traverse pas les cartes
+    imgSrcPool.clear(); // le pool d'images de l'undo est lié à l'historique → réinitialisé aussi
+    fileDirty = false; if(typeof updateSaveHint==="function") updateSaveHint(); // état fichier de la nouvelle carte
+  }
+  function loadMapDoc(id){
+    let raw = null;
+    try{ raw = localStorage.getItem(mapKey(id)); }catch(e){}
+    if(raw){
+      try{ return deserialize(JSON.parse(raw)); }
+      catch(e){
+        // Carte illisible : ne PAS réinitialiser en silence. On sauvegarde le brut et on prévient.
+        try{ localStorage.setItem(mapKey(id) + ".corrupt", raw); }catch(_){}
+        setTimeout(()=>alert("⚠️ Cette carte est illisible (données corrompues) — elle a été remplacée par une carte vierge.\n\nLe contenu brut a été mis de côté (clé « " + mapKey(id) + ".corrupt » dans le stockage) au cas où il serait récupérable."), 0);
+      }
+    }
+    return { root: buildSeedRoot(), images: [], stickies: [] };
+  }
+  // auto=true : le nom suit le nœud central. auto=false : nom figé (import, renommage manuel).
+  function createMapWithJson(name, json, auto){
+    const id = newMapId();
+    try{ localStorage.setItem(mapKey(id), json); }catch(e){ quotaAlert(); return null; }
+    mapsMeta.unshift({ id, name: name || "Nouvelle carte", updatedAt: Date.now(), auto: auto!==false });
+    saveMapsIndex();
+    return id;
+  }
+  async function switchToMap(id){
+    if(!id || id===currentMapId){ closeHome(); return; }
+    persistCurrent();
+    await updateCurrentThumb();   // vignette de la carte qu'on quitte
+    currentMapId = id;
+    applyDoc(loadMapDoc(id));
+    saveMapsIndex();
+    closeHome();
+    render(); fit();
+  }
+  function newMap(){
+    persistCurrent();
+    const id = createMapWithJson("Nouvelle carte", docJsonFrom(buildSeedRoot(), [], []));
+    if(id) switchToMap(id);
+  }
+  function renameMap(id, name){
+    const m = mapsMeta.find(x=>x.id===id); if(!m) return;
+    const v = (name||"").trim();
+    if(v){ m.name = v; m.auto = false; } // renommage manuel : on fige le nom
+    saveMapsIndex();
+    if(homeEl.classList.contains("open")) renderHome();
+  }
+  function duplicateMap(id){
+    if(id===currentMapId) persistCurrent();
+    const raw = localStorage.getItem(mapKey(id)); if(!raw) return;
+    const m = mapsMeta.find(x=>x.id===id);
+    const nid2 = createMapWithJson(((m&&m.name)||"Carte") + " (copie)", raw);
+    if(nid2){
+      const t = localStorage.getItem(thumbKey(id));
+      if(t){ try{ localStorage.setItem(thumbKey(nid2), t); }catch(e){} }
+      renderHome();
+    }
+  }
+  function deleteMap(id){
+    if(mapsMeta.length <= 1){ alert("Impossible de supprimer la dernière carte."); return; }
+    const m = mapsMeta.find(x=>x.id===id);
+    if(!confirm("Supprimer définitivement « " + ((m&&m.name)||"cette carte") + " » ?\nExporte-la d'abord en .json si tu veux la garder.")) return;
+    mapsMeta = mapsMeta.filter(x=>x.id!==id);
+    mapFileHandles.delete(id);
+    try{ localStorage.removeItem(mapKey(id)); localStorage.removeItem(thumbKey(id)); }catch(e){}
+    if(currentMapId===id){ currentMapId = mapsMeta[0].id; applyDoc(loadMapDoc(currentMapId)); render(); fit(); }
+    saveMapsIndex();
+    renderHome();
+  }
+  // Vignette de la carte courante (best-effort — on ignore les erreurs).
+  async function updateCurrentThumb(){
+    try{
+      const { canvas } = await mapToCanvas(0.5);
+      const maxW = 300, k = Math.min(1, maxW / canvas.width);
+      const tw = Math.max(1, Math.round(canvas.width*k)), th = Math.max(1, Math.round(canvas.height*k));
+      const cv = document.createElement("canvas"); cv.width = tw; cv.height = th;
+      cv.getContext("2d").drawImage(canvas, 0, 0, tw, th);
+      localStorage.setItem(thumbKey(currentMapId), cv.toDataURL("image/jpeg", 0.55));
+    }catch(e){ /* quota ou autre : la vignette n'est pas critique */ }
+  }
+
+  // ---------- Écran d'accueil ----------
+  function fmtDate(ts){
+    if(!ts) return "";
+    const d = new Date(ts), now = new Date();
+    const sameDay = d.toDateString()===now.toDateString();
+    const t = d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    return sameDay ? ("Aujourd'hui " + t) : (d.toLocaleDateString() + " " + t);
+  }
+  function renderHome(){
+    const grid = document.getElementById("homeGrid");
+    if(!grid) return;
+    const sorted = mapsMeta.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    grid.innerHTML = "";
+    for(const m of sorted){
+      const card = document.createElement("div");
+      card.className = "mapcard" + (m.id===currentMapId ? " current" : "");
+      let thumb = "";
+      try{ thumb = localStorage.getItem(thumbKey(m.id)) || ""; }catch(e){}
+      const bg = thumb ? ` style="background-image:url('${thumb}')"` : "";
+      card.innerHTML =
+        `<div class="thumb"${bg}>${thumb ? "" : "🗺"}</div>`
+        + `<div class="meta"><div class="mname">${esc(m.name||"Sans titre")}</div>`
+        + `<div class="mdate">${fmtDate(m.updatedAt)}</div>`
+        + (m.id===currentMapId ? `<span class="badge-cur">Ouverte</span>` : ``)
+        + `</div>`
+        + `<div class="mrow">`
+        + `<button data-open>Ouvrir</button>`
+        + `<button data-rename title="Renommer">✎</button>`
+        + `<button data-dup title="Dupliquer">⧉</button>`
+        + `<button class="del" data-del title="Supprimer">🗑</button>`
+        + `</div>`;
+      card.querySelector(".thumb").onclick = ()=>switchToMap(m.id);
+      card.querySelector(".mname").onclick = ()=>switchToMap(m.id);
+      card.querySelector("[data-open]").onclick = ()=>switchToMap(m.id);
+      card.querySelector("[data-rename]").onclick = (e)=>{ e.stopPropagation();
+        const n = prompt("Nom de la carte :", m.name||""); if(n!==null) renameMap(m.id, n); };
+      card.querySelector("[data-dup]").onclick = (e)=>{ e.stopPropagation(); duplicateMap(m.id); };
+      card.querySelector("[data-del]").onclick = (e)=>{ e.stopPropagation(); deleteMap(m.id); };
+      grid.appendChild(card);
+    }
+  }
+  async function openHome(){
+    if(editingId!=null) commitEdit();
+    if(editingStickyId!=null) commitStickyEdit();
+    persistCurrent();
+    await updateCurrentThumb();   // rafraîchit la vignette de la carte courante
+    renderHome();
+    homeEl.classList.add("open");
+  }
+  function closeHome(){ homeEl.classList.remove("open"); }
+
+  function serialize(){
+    function s(n){ return { text:n.text, color:n.color, link:n.link||"", note:n.note||"", check:(n.check==null?null:!!n.check), priority:(n.priority==null?null:n.priority), collapsed:n.collapsed, children:n.children.map(s) }; }
+    return { v:1, root:s(root),
+      images: images.map(im=>({ src:im.src, x:im.x, y:im.y, w:im.w, h:im.h })),
+      stickies: stickies.map(st=>({ text:st.text, x:st.x, y:st.y, w:st.w, h:st.h, color:st.color })) };
+  }
+  function deserialize(data){
+    function d(o){ const n = makeNode(o.text, o.color); n.link = o.link||""; n.note = o.note||""; n.check = (o.check==null?null:!!o.check); const p = parseInt(o.priority,10); n.priority = (p>=1&&p<=6)?p:null; n.collapsed = !!o.collapsed; n.children = (o.children||[]).map(d); return n; }
+    // n'accepte que des data:image/ (jamais une URL externe ou un schéma exotique)
+    const imgs = (Array.isArray(data.images) ? data.images : [])
+      .filter(o => o && typeof o.src === "string" && /^data:image\//i.test(o.src))
+      .map(o => ({ id: iid(), src: o.src, x: (+o.x||0), y: (+o.y||0),
+                   w: Math.max(24, +o.w||160), h: Math.max(24, +o.h||120) }));
+    const sts = (Array.isArray(data.stickies) ? data.stickies : [])
+      .filter(o => o && typeof o === "object")
+      .map(o => ({ id: sid(), text: String(o.text||""), x: (+o.x||0), y: (+o.y||0),
+                   w: Math.max(60, +o.w||190), h: Math.max(40, +o.h||130),
+                   color: (typeof o.color==="string" && /^#[0-9a-fA-F]{3,8}$/.test(o.color)) ? o.color : STICKY_COLORS[0] }));
+    return { root: d(data.root), images: imgs, stickies: sts };
+  }
+  // ---------- Publication statique (GitHub Pages, Netlify, etc.) ----------
+  // Si un fichier map.json est servi à côté de index.html, on l'importe une seule fois par
+  // navigateur comme nouvelle carte (jamais en écrasant une carte existante du même appareil) —
+  // permet à un lien public d'afficher directement la carte, sans étape d'import manuelle.
+  function tryImportPublishedSeed(){
+    try{
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", "./map.json", false); // synchrone : doit trancher avant le 1er render du boot
+      xhr.send(null);
+      if(xhr.status !== 200 || !xhr.responseText) return null;
+      const data = JSON.parse(xhr.responseText);
+      if(!data || !data.root) return null;
+      const marker = "ygmind.published." + String(data.deployId || "default");
+      if(localStorage.getItem(marker)) return null; // déjà importée dans ce navigateur
+      const name = (data.root.text || "Carte publiée").slice(0, 60);
+      const id = createMapWithJson(name, JSON.stringify(data), false); // nom figé (publication)
+      if(id){ try{ localStorage.setItem(marker, "1"); }catch(e){} }
+      return id;
+    }catch(e){ return null; } // file:// ou pas de map.json : comportement local inchangé
+  }
+  function load(){
+    let idx = null;
+    try{ const raw = localStorage.getItem(MAPS_KEY); if(raw) idx = JSON.parse(raw); }catch(e){}
+    // Pré-charge la bibliothèque existante AVANT un éventuel import publié, sinon
+    // createMapWithJson() (appelé par tryImportPublishedSeed) écraserait mapsMeta encore vide.
+    if(idx && Array.isArray(idx.maps)) mapsMeta = idx.maps;
+
+    const publishedId = tryImportPublishedSeed();
+    if(publishedId){
+      currentMapId = publishedId;
+      applyDoc(loadMapDoc(currentMapId));
+      saveMapsIndex();
+      return;
+    }
+
+    if(idx && Array.isArray(idx.maps) && idx.maps.length){
+      currentMapId = (idx.currentId && mapsMeta.some(m=>m.id===idx.currentId)) ? idx.currentId : mapsMeta[0].id;
+      applyDoc(loadMapDoc(currentMapId));
+      return;
+    }
+    // Migration : ancienne carte unique (ygmind.doc.v1) → première carte de la bibliothèque
+    let migrated = null;
+    try{ const old = localStorage.getItem(STORE_KEY); if(old) migrated = old; }catch(e){}
+    if(migrated){
+      const id = newMapId();
+      let name = "Ma carte";
+      try{ name = (deserialize(JSON.parse(migrated)).root.text) || name; }catch(e){}
+      try{ localStorage.setItem(mapKey(id), migrated); localStorage.removeItem(STORE_KEY); }catch(e){}
+      mapsMeta = [{ id, name, updatedAt: Date.now(), auto: true }];
+      currentMapId = id;
+      applyDoc(loadMapDoc(id));
+      saveMapsIndex();
+      return;
+    }
+    // Première utilisation : une carte d'exemple
+    const id = createMapWithJson("Ma première carte", docJsonFrom(buildSeedRoot(), [], []));
+    currentMapId = id;
+    applyDoc(loadMapDoc(id));
+  }
+  function buildSeedRoot(){
+    const r = makeNode("Sujet central", "#dbeafe");
+    const a = makeNode("Idée principale 1","#dcfce7");
+    a.children.push(makeNode("Sous-idée"), makeNode("Détail"));
+    const b = makeNode("Idée principale 2","#fef9c3");
+    b.children.push(makeNode("À explorer"));
+    const c = makeNode("Idée principale 3","#ffe4e6");
+    r.children.push(a,b,c);
+    return r;
+  }
+  function seed(){ // conservé pour compatibilité : réinitialise les globals
+    images = []; selectedImageId = null;
+    stickies = []; selectedStickyId = null;
+    root = buildSeedRoot();
+  }
+
+  // ---------- View helpers ----------
+  function fit(){
+    layout();
+    const rect = svg.getBoundingClientRect();
+    if(rect.width < 80 || rect.height < 80) return; // SVG pas encore dimensionné : on attend
+    const pad = 60;
+    const w = bbox.maxX - bbox.minX, h = bbox.maxY - bbox.minY;
+    const s = Math.min(2, Math.max(.2, Math.min((rect.width-pad*2)/w, (rect.height-pad*2)/h)));
+    view.s = s;
+    view.tx = (rect.width - w*s)/2 - bbox.minX*s;
+    view.ty = (rect.height - h*s)/2 - bbox.minY*s;
+    applyView();
+  }
+  function centerOn(n){
+    const rect = svg.getBoundingClientRect();
+    const cx = n.x + n.w/2, cy = n.y;
+    view.tx = rect.width/2 - cx*view.s;
+    view.ty = rect.height/2 - cy*view.s;
+    applyView();
+  }
+  // ---------- Sélection (multiple) ----------
+  // Recalcule les variables « objet unique » à partir de `sel`.
+  // Les poignées de redimensionnement n'apparaissent qu'en sélection unique.
+  function selApply(anchorId){
+    selectedId = (anchorId && sel.has(anchorId) && find(anchorId)) ? anchorId : null;
+    if(!selectedId){ for(const id of sel){ if(find(id)){ selectedId = id; break; } } }
+    const single = sel.size === 1 ? [...sel][0] : null;
+    selectedImageId  = (single && images.some(i=>i.id===single))  ? single : null;
+    selectedStickyId = (single && stickies.some(s=>s.id===single)) ? single : null;
+  }
+  function selSet(id){ sel = new Set(id ? [id] : []); selApply(id); }        // sans render (l'appelant s'en charge)
+  function selectOnly(id){ selSet(id); render(); }
+  function selToggle(id){                                                     // Shift+clic
+    if(sel.has(id)) sel.delete(id); else sel.add(id);
+    selApply(find(id) ? id : null);
+    render();
+  }
+  function clearSel(){ sel.clear(); selApply(null); render(); }
+  function selectedNodeList(){ return [...sel].map(id=>find(id)).filter(Boolean).map(r=>r.node); }
+  // Nœuds à supprimer : ni la racine, ni ceux déjà emportés par un ancêtre sélectionné.
+  // La racine n'étant jamais supprimable, elle ne « couvre » pas ses enfants
+  // (sinon Cmd+A puis Suppr ne supprimerait rien).
+  function deletableTopNodes(){
+    const out = [];
+    for(const id of sel){
+      const r = find(id);
+      if(!r || !r.parent) continue; // pas un nœud, ou la racine
+      const chain = pathToNode(id) || [];
+      const covered = chain.slice(0,-1).some(a=>{
+        if(!sel.has(a.id)) return false;
+        const ar = find(a.id);
+        return !!(ar && ar.parent); // seul un ancêtre réellement supprimable couvre ce nœud
+      });
+      if(!covered) out.push(r);
+    }
+    return out;
+  }
+  function selectAllVisible(){
+    sel = new Set();
+    (function walk(n, isTop){ sel.add(n.id); if(isTop || !n.collapsed) n.children.forEach(c=>walk(c,false)); })(displayRoot(), true);
+    if(!focusId){ images.forEach(i=>sel.add(i.id)); stickies.forEach(s=>sel.add(s.id)); }
+    selApply(displayRoot().id);
+    render();
+  }
+  function rectsOverlap(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+  function selectInRect(r){
+    sel = new Set();
+    (function walk(n, isTop){
+      if(rectsOverlap(r, {x:n.x, y:n.y-n.h/2, w:n.w, h:n.h})) sel.add(n.id);
+      if(isTop || !n.collapsed) n.children.forEach(c=>walk(c,false));
+    })(displayRoot(), true);
+    if(!focusId){
+      images.forEach(i=>{ if(rectsOverlap(r,i)) sel.add(i.id); });
+      stickies.forEach(s=>{ if(rectsOverlap(r,s)) sel.add(s.id); });
+    }
+    selApply(null);
+    render();
+  }
+  // --- Actions groupées ---
+  function deleteSelection(){
+    const nodes = deletableTopNodes();
+    const imgs = images.filter(i=>sel.has(i.id));
+    const sts  = stickies.filter(s=>sel.has(s.id));
+    if(!nodes.length && !imgs.length && !sts.length) return;
+    pushHistory();
+    const anchor = nodes.length ? nodes[0].parent.id : null;
+    for(const r of nodes){
+      const i = r.parent.children.indexOf(r.node);
+      if(i >= 0) r.parent.children.splice(i,1);
+    }
+    images = images.filter(i=>!sel.has(i.id));
+    stickies = stickies.filter(s=>!sel.has(s.id));
+    selSet(anchor);
+    render();
+  }
+  function setColorSel(color){
+    const nodes = selectedNodeList();
+    if(!nodes.length) return;
+    pushHistory();
+    nodes.forEach(n=>n.color = color);
+    render();
+  }
+  function setPrioritySel(p){
+    const nodes = selectedNodeList();
+    if(!nodes.length) return;
+    const v = (p>=1 && p<=6) ? p : null;
+    // tous déjà à cette priorité → on la retire (même logique de bascule qu'en sélection unique)
+    const allSame = v!=null && nodes.every(n=>n.priority===v);
+    pushHistory();
+    nodes.forEach(n=>n.priority = allSame ? null : v);
+    render();
+  }
+  // Sélection unique d'un nœud SANS reconstruire le SVG (préserve l'élément pour le double-clic / le glisser).
+  function select(id){
+    const hadFloatSel = selectedImageId || selectedStickyId;
+    sel = new Set(id ? [id] : []);
+    selApply(id);
+    if(hadFloatSel){ render(); return; } // il fallait retirer des poignées d'image/post-it → rendu complet
+    vp.querySelectorAll("g.node.selected").forEach(g=>g.classList.remove("selected"));
+    if(id){ const g = vp.querySelector(`g[data-id="${id}"]`); if(g) g.classList.add("selected"); }
+    if(typeof updateSwatchActive === "function") updateSwatchActive();
+    renderSelInfo();
+  }
+
+  // ---------- Editing ----------
+  let editIsNew = false; // l'édition en cours vient-elle d'une création de nœud ?
+  function startEdit(id, isNew){
+    editIsNew = !!isNew;
+    const { node } = find(id) || {};
+    if(!node) return;
+    editingId = id;
+    selectedId = id;
+    editor.value = node.text;
+    editor.style.display = "block";
+    const effBg = effFill(node);
+    editor.style.background = effBg;
+    editor.style.color = textColorFor(effBg);
+    positionEditor(node);
+    editor.focus();
+    editor.select();
+  }
+  function positionEditor(n){
+    const rect = svg.getBoundingClientRect();
+    const sx = rect.left + view.tx + n.x*view.s;
+    const sy = rect.top + view.ty + (n.y - n.h/2)*view.s;
+    editor.style.left = sx + "px";
+    editor.style.top = sy + "px";
+    editor.style.minWidth = (n.w*view.s) + "px";
+    editor.style.width = Math.max(n.w, MAX_TEXT_W)*view.s + "px";
+    editor.style.fontSize = (15*view.s) + "px";
+    editor.style.lineHeight = (LINE*view.s) + "px";
+    editor.style.padding = (PAD_V*view.s)+"px "+(PAD_H*view.s)+"px";
+    autoGrow();
+  }
+  function autoGrow(){ editor.style.height = "auto"; editor.style.height = editor.scrollHeight + "px"; }
+  function commitEdit(){
+    if(editingId==null) return;
+    const { node } = find(editingId) || {};
+    if(node){
+      const newText = editor.value.replace(/\s+$/,"");
+      // Historique : seulement pour un vrai renommage (pas la 1re saisie d'un nœud créé,
+      // dont l'état d'avant a déjà été mémorisé au moment de la création).
+      if(!editIsNew && newText !== node.text) pushHistory();
+      node.text = newText;
+      // Détection auto : si le texte EST une URL et qu'aucun lien n'est encore défini,
+      // on en fait automatiquement un lien cliquable.
+      if(!node.link){
+        const t = node.text.trim();
+        if(/^https?:\/\/\S+$/i.test(t)) node.link = t;
+        else if(/^www\.\S+$/i.test(t)) node.link = "https://" + t;
+      }
+    }
+    editIsNew = false;
+    editingId = null;
+    editor.style.display = "none";
+    render();
+  }
+  function cancelEdit(){ editingId = null; editor.style.display = "none"; render(); }
+  editor.addEventListener("input", ()=>{ if(!editingStickyId) autoGrow(); }); // post-it : hauteur fixe
+  editor.addEventListener("keydown", (e)=>{
+    if(editingStickyId){
+      // Sur un post-it, Entrée = nouvelle ligne (c'est un bloc-notes) ; Échap valide.
+      if(e.key==="Escape"){ e.preventDefault(); commitStickyEdit(); }
+    } else {
+      if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); commitEdit(); }
+      else if(e.key==="Escape"){ e.preventDefault(); cancelEdit(); }
+    }
+    e.stopPropagation();
+  });
+  editor.addEventListener("blur", ()=>{ if(editingStickyId) commitStickyEdit(); else commitEdit(); });
+
+  // ---------- Historique (annuler / rétablir) ----------
+  const undoStack = [], redoStack = [];
+  // Pool de session : le base64 des images vit ICI, pas dans chaque snapshot d'undo.
+  // Les images sont immuables (seules x/y/w/h changent) → on ne stocke que la référence
+  // dans l'historique. Sans ça, 200 snapshots × quelques images = ~180 Mo en RAM (mesuré).
+  const imgSrcPool = new Map();
+  function snapNode(n){ return { text:n.text, color:n.color, link:n.link||"", note:n.note||"", check:(n.check==null?null:!!n.check), priority:(n.priority==null?null:n.priority), collapsed:n.collapsed, children:n.children.map(snapNode) }; }
+  function snapshot(){
+    for(const im of images) imgSrcPool.set(im.id, im.src);
+    return JSON.stringify({
+      root: snapNode(root),
+      images: images.map(im=>({ id:im.id, x:im.x, y:im.y, w:im.w, h:im.h })), // pas de src
+      stickies: stickies.map(st=>({ text:st.text, x:st.x, y:st.y, w:st.w, h:st.h, color:st.color }))
+    });
+  }
+  // À appeler AVANT toute modification : mémorise l'état actuel.
+  function pushHistory(){
+    undoStack.push(snapshot());
+    if(undoStack.length > 200) undoStack.shift();
+    redoStack.length = 0;
+    updateHistoryButtons();
+  }
+  function restoreSnapshot(str){
+    const data = JSON.parse(str);
+    function d(o){ const n = makeNode(o.text, o.color); n.link=o.link||""; n.note=o.note||""; n.check=(o.check==null?null:!!o.check); const p=parseInt(o.priority,10); n.priority=(p>=1&&p<=6)?p:null; n.collapsed=!!o.collapsed; n.children=(o.children||[]).map(d); return n; }
+    root = d(data.root);
+    images = (data.images||[]).map(o=>({ id:o.id, src:imgSrcPool.get(o.id)||"", x:+o.x||0, y:+o.y||0, w:Math.max(24,+o.w||160), h:Math.max(24,+o.h||120) })).filter(im=>im.src);
+    stickies = (data.stickies||[]).map(o=>({ id:sid(), text:String(o.text||""), x:+o.x||0, y:+o.y||0, w:Math.max(60,+o.w||190), h:Math.max(40,+o.h||130), color:(typeof o.color==="string"&&/^#[0-9a-fA-F]{3,8}$/.test(o.color))?o.color:STICKY_COLORS[0] }));
+    focusId = null; editingId = null; editingStickyId = null; selectedImageId = null; selectedStickyId = null;
+    selSet(find(selectedId) ? selectedId : root.id);
+    render();
+    updateHistoryButtons();
+  }
+  function undo(){
+    if(!undoStack.length) return;
+    redoStack.push(snapshot());
+    restoreSnapshot(undoStack.pop());
+  }
+  function redo(){
+    if(!redoStack.length) return;
+    undoStack.push(snapshot());
+    restoreSnapshot(redoStack.pop());
+  }
+  function updateHistoryButtons(){
+    const u = document.getElementById("btnUndo"), r = document.getElementById("btnRedo");
+    if(u) u.disabled = undoStack.length === 0;
+    if(r) r.disabled = redoStack.length === 0;
+  }
+
+  // ---------- Structural ops ----------
+  function addChild(id){
+    const { node } = find(id) || {}; if(!node) return;
+    pushHistory();
+    node.collapsed = false;
+    const child = makeNode("", node.children[0]?node.children[0].color:node.color);
+    node.children.push(child);
+    render();
+    startEdit(child.id, true);
+  }
+  function addSibling(id){
+    const r = find(id); if(!r || !r.parent){ return; }
+    pushHistory();
+    const sib = makeNode("", r.node.color);
+    const idx = r.parent.children.indexOf(r.node);
+    r.parent.children.splice(idx+1, 0, sib);
+    render();
+    startEdit(sib.id, true);
+  }
+  function removeNode(id){
+    const r = find(id); if(!r || !r.parent) return; // can't delete root
+    pushHistory();
+    const idx = r.parent.children.indexOf(r.node);
+    r.parent.children.splice(idx,1);
+    selSet(r.parent.id);
+    render();
+  }
+  function reparent(dragId, targetId){
+    if(dragId===targetId) return;
+    const dr = find(dragId), tg = find(targetId);
+    if(!dr || !dr.parent || !tg) return;
+    if(isDescendant(dr.node, targetId)) return; // can't drop into own subtree
+    pushHistory();
+    const idx = dr.parent.children.indexOf(dr.node);
+    dr.parent.children.splice(idx,1);
+    tg.node.collapsed = false;
+    tg.node.children.push(dr.node);
+    selSet(dragId);
+    render();
+  }
+  // Insère dragId avant/après targetId (réordonner ou changer de parent en même temps)
+  function moveNodeRelative(dragId, targetId, where){
+    if(dragId === targetId) return;
+    const dr = find(dragId), tg = find(targetId);
+    if(!dr || !dr.parent || !tg || !tg.parent) return;
+    if(isDescendant(dr.node, targetId)) return; // pas dans son propre sous-arbre
+    const sibs = tg.parent.children;
+    const from = dr.parent.children.indexOf(dr.node);
+    let to = sibs.indexOf(tg.node);
+    if(dr.parent === tg.parent && from < to) to--; // le retrait décale l'index cible
+    if(where === "after") to++;
+    if(dr.parent === tg.parent && to === from) return; // dépôt au même endroit : rien à faire
+    pushHistory();
+    dr.parent.children.splice(from, 1);
+    sibs.splice(to, 0, dr.node);
+    selSet(dragId);
+    render();
+  }
+  // Monte/descend le nœud parmi ses frères (Cmd/Ctrl + ↑/↓)
+  function moveSibling(id, dir){
+    const r = find(id); if(!r || !r.parent) return;
+    const sibs = r.parent.children;
+    const i = sibs.indexOf(r.node), j = i + dir;
+    if(j < 0 || j >= sibs.length) return;
+    pushHistory();
+    sibs.splice(i, 1); sibs.splice(j, 0, r.node);
+    render();
+  }
+  // ---------- Post-it ----------
+  function selectSticky(id){ selectOnly(id); }
+  function addSticky(wx, wy, color){
+    pushHistory();
+    if(focusId) focusId = null; // les post-it vivent sur la carte complète
+    const s = { id: sid(), text: "", x: Math.round(wx-95), y: Math.round(wy-65), w: 190, h: 130,
+                color: color || STICKY_COLORS[0] };
+    stickies.push(s);
+    selectSticky(s.id);
+    startStickyEdit(s.id); // on écrit tout de suite : c'est le geste attendu
+    return s;
+  }
+  function removeSticky(id){
+    const i = stickies.findIndex(s=>s.id===id); if(i<0) return;
+    pushHistory();
+    stickies.splice(i,1); selectedStickyId = null;
+    render();
+  }
+  function setStickyColor(id, color){
+    const s = stickies.find(x=>x.id===id); if(!s || s.color===color) return;
+    pushHistory(); s.color = color; render();
+  }
+  function startStickyEdit(id){
+    const s = stickies.find(x=>x.id===id); if(!s) return;
+    editingStickyId = id;
+    const r = svg.getBoundingClientRect();
+    editor.value = s.text;
+    editor.style.display = "block";
+    editor.style.background = s.color;
+    editor.style.color = textColorFor(s.color);
+    editor.style.left = (r.left + view.tx + s.x*view.s) + "px";
+    editor.style.top = (r.top + view.ty + s.y*view.s) + "px";
+    editor.style.minWidth = (s.w*view.s) + "px";
+    editor.style.width = (s.w*view.s) + "px";
+    editor.style.height = (s.h*view.s) + "px";
+    editor.style.fontSize = (15*view.s) + "px";
+    editor.style.lineHeight = (LINE*view.s) + "px";
+    editor.style.padding = (4*view.s)+"px "+(10*view.s)+"px";
+    editor.focus(); editor.select();
+  }
+  function commitStickyEdit(){
+    if(!editingStickyId) return;
+    const s = stickies.find(x=>x.id===editingStickyId);
+    editingStickyId = null;
+    editor.style.display = "none";
+    editor.style.height = "auto"; // rendre la hauteur auto à l'éditeur de nœud
+    if(s){
+      const v = editor.value.replace(/\s+$/,"");
+      if(v !== s.text){ pushHistory(); s.text = v; }
+    }
+    render();
+  }
+
+  // ---------- Images flottantes ----------
+  function selectImage(id){ selectOnly(id); }
+  function removeImage(id){
+    const i = images.findIndex(im=>im.id===id); if(i<0) return;
+    pushHistory();
+    images.splice(i,1); selectedImageId = null;
+    render();
+  }
+  function viewCenterWorld(){
+    const r = svg.getBoundingClientRect();
+    return clientToWorld(r.left + r.width/2, r.top + r.height/2);
+  }
+  // Redimensionne et ré-encode : sans ça, quelques photos suffisent à saturer le stockage local.
+  async function fileToImageData(file){
+    const dataUrl = await new Promise((res,rej)=>{
+      const fr = new FileReader();
+      fr.onload = ()=>res(fr.result); fr.onerror = ()=>rej(new Error("lecture impossible"));
+      fr.readAsDataURL(file);
+    });
+    const img = await new Promise((res,rej)=>{
+      const i = new Image();
+      i.onload = ()=>res(i); i.onerror = ()=>rej(new Error("format d'image non reconnu"));
+      i.src = dataUrl;
+    });
+    const nw = img.naturalWidth || img.width, nh = img.naturalHeight || img.height;
+    if(!nw || !nh) throw new Error("image vide");
+    const k = Math.min(1, MAX_IMG_DIM / Math.max(nw, nh));
+    const cw = Math.max(1, Math.round(nw*k)), ch = Math.max(1, Math.round(nh*k));
+    const cv = document.createElement("canvas"); cv.width = cw; cv.height = ch;
+    const ctx = cv.getContext("2d");
+    ctx.drawImage(img, 0, 0, cw, ch);
+    // transparence ? -> PNG (obligatoire) ; sinon JPEG, bien plus léger
+    let hasAlpha = false;
+    try{
+      const d = ctx.getImageData(0,0,cw,ch).data;
+      for(let i=3;i<d.length;i+=16){ if(d[i] < 250){ hasAlpha = true; break; } }
+    }catch(e){ hasAlpha = true; }
+    const src = hasAlpha ? cv.toDataURL("image/png") : cv.toDataURL("image/jpeg", 0.82);
+    return { src, w: cw, h: ch };
+  }
+  async function addImageAt(file, wx, wy){
+    if(!file || !/^image\//i.test(file.type)){ alert("Ce fichier n'est pas une image."); return; }
+    try{
+      const { src, w, h } = await fileToImageData(file);
+      const k = Math.min(1, 260 / Math.max(w, h)); // taille d'affichage initiale raisonnable
+      const dw = Math.max(24, Math.round(w*k)), dh = Math.max(24, Math.round(h*k));
+      pushHistory();
+      if(focusId) focusId = null; // les images vivent sur la carte complète
+      const im = { id: iid(), src, x: Math.round(wx - dw/2), y: Math.round(wy - dh/2), w: dw, h: dh };
+      images.push(im);
+      selectImage(im.id);
+    }catch(e){
+      alert("Image impossible à ajouter : " + e.message);
+    }
+  }
+  function setColor(id, color){ const { node } = find(id)||{}; if(node){ pushHistory(); node.color = color; render(); } }
+  function setLink(id){
+    const { node } = find(id)||{}; if(!node) return;
+    const input = prompt("Adresse du lien (URL) — laisser vide pour retirer :", node.link || "https://");
+    if(input === null) return; // annulé
+    let v = input.trim();
+    if(v && !/^(https?:\/\/|mailto:|file:\/\/)/i.test(v)) v = "https://" + v; // ajoute https:// si absent
+    if(v === node.link) return;
+    pushHistory();
+    node.link = v;
+    render();
+  }
+  function toggleCollapse(id){ const { node } = find(id)||{}; if(node && node.children.length){ node.collapsed=!node.collapsed; render(); } }
+  // Tâches
+  function toggleTask(id){ // active/désactive le statut « tâche » du nœud
+    const { node } = find(id)||{}; if(!node) return;
+    pushHistory();
+    node.check = (node.check==null) ? false : null;
+    render();
+  }
+  // Priorités (badge numéroté 1-6)
+  function setPriority(id, p){
+    const { node } = find(id)||{}; if(!node) return;
+    let v = (p>=1 && p<=6) ? p : null;
+    if(v!=null && node.priority === v) v = null; // re-choisir la même = retirer
+    if(node.priority === v) return;
+    pushHistory();
+    node.priority = v;
+    render();
+  }
+  function cyclePriority(id){ // clic sur le badge : 1→2→…→6→retirer
+    const { node } = find(id)||{}; if(!node) return;
+    pushHistory();
+    node.priority = (node.priority==null) ? 1 : (node.priority>=6 ? null : node.priority+1);
+    render();
+  }
+  function sortByPriority(id){ // trie les enfants : priorité croissante, sans priorité à la fin (tri stable)
+    const { node } = find(id)||{}; if(!node || node.children.length<2) return;
+    pushHistory();
+    node.children = node.children.map((c,i)=>[c,i]).sort((a,b)=>{
+      const pa = a[0].priority==null ? 99 : a[0].priority;
+      const pb = b[0].priority==null ? 99 : b[0].priority;
+      return (pa-pb) || (a[1]-b[1]);
+    }).map(x=>x[0]);
+    render();
+  }
+  function toggleDone(id){ // coche/décoche la tâche
+    const { node } = find(id)||{}; if(!node) return;
+    pushHistory();
+    node.check = (node.check==null) ? true : !node.check;
+    render();
+  }
+
+  // ---------- Pointer interaction ----------
+  let mode = null; // 'pan' | 'pressNode' | 'dragNode'
+  let start = {x:0,y:0}, viewStart = {tx:0,ty:0};
+  let pressId = null, dragMoved = false, dropTargetId = null;
+  let dropMode = null; // 'child' (devenir enfant) | 'before' | 'after' (s'insérer parmi les frères)
+  let dragImg = null, imgStart = null, imgPushed = false; // déplacement / redimensionnement d'image
+  let marqStart = null, marqRect = null;                  // lasso de sélection (Shift + glisser)
+  let lastClickId = null, lastClickTime = 0; // détection maison du double-clic (fiable sur tous navigateurs)
+
+  function clientToWorld(cx,cy){
+    const rect = svg.getBoundingClientRect();
+    return { x:(cx-rect.left-view.tx)/view.s, y:(cy-rect.top-view.ty)/view.s };
+  }
+  function nodeElAt(cx,cy){
+    const el = document.elementFromPoint(cx,cy);
+    if(!el) return null;
+    const g = el.closest ? el.closest("[data-id]") : null;
+    return g ? g.getAttribute("data-id") : null;
+  }
+
+  svg.addEventListener("pointerdown", (e)=>{
+    if(editingId!=null || editingStickyId!=null) return;
+    if(e.button && e.button !== 0) return; // ignore clic droit/milieu (géré par le menu contextuel)
+    // --- Post-it ---
+    const sDel = e.target.closest && e.target.closest("[data-stickydel]");
+    if(sDel){ removeSticky(sDel.getAttribute("data-stickydel")); return; }
+    const sH = e.target.closest && e.target.closest("[data-stickyhandle]");
+    if(sH){
+      const s = stickies.find(x=>x.id===sH.getAttribute("data-stickyhandle"));
+      if(s){
+        mode = "resizeSticky"; dragImg = s; imgPushed = false;
+        imgStart = {x:s.x, y:s.y, w:s.w, h:s.h};
+        start = {x:e.clientX, y:e.clientY};
+        svg.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+    const sEl = e.target.closest && e.target.closest("[data-sticky]");
+    if(sEl){
+      const s = stickies.find(x=>x.id===sEl.getAttribute("data-sticky"));
+      if(s){
+        if(e.shiftKey){ selToggle(s.id); return; }
+        if(selectedStickyId !== s.id) selectSticky(s.id);
+        mode = "dragSticky"; dragImg = s; imgPushed = false; pressId = s.id;
+        imgStart = {x:s.x, y:s.y, w:s.w, h:s.h};
+        start = {x:e.clientX, y:e.clientY};
+        svg.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+    // --- Images flottantes ---
+    const delEl = e.target.closest && e.target.closest("[data-imgdel]");
+    if(delEl){ removeImage(delEl.getAttribute("data-imgdel")); return; }
+    const hEl = e.target.closest && e.target.closest("[data-imghandle]");
+    if(hEl){
+      const im = images.find(i=>i.id===hEl.getAttribute("data-imghandle"));
+      if(im){
+        mode = "resizeImage"; dragImg = im; imgPushed = false;
+        imgStart = {x:im.x, y:im.y, w:im.w, h:im.h};
+        start = {x:e.clientX, y:e.clientY};
+        svg.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+    const imEl = e.target.closest && e.target.closest("[data-img]");
+    if(imEl){
+      const im = images.find(i=>i.id===imEl.getAttribute("data-img"));
+      if(im){
+        if(e.shiftKey){ selToggle(im.id); return; }
+        if(selectedImageId !== im.id) selectImage(im.id);
+        mode = "dragImage"; dragImg = im; imgPushed = false;
+        imgStart = {x:im.x, y:im.y, w:im.w, h:im.h};
+        start = {x:e.clientX, y:e.clientY};
+        svg.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+    const prioEl = e.target.closest && e.target.closest("[data-prio]");
+    if(prioEl){ cyclePriority(prioEl.getAttribute("data-prio")); return; }
+    const checkEl = e.target.closest && e.target.closest("[data-check]");
+    if(checkEl){ toggleDone(checkEl.getAttribute("data-check")); return; }
+    const noteEl = e.target.closest && e.target.closest("[data-note]");
+    if(noteEl){ openNotePanel(noteEl.getAttribute("data-note")); return; }
+    const linkEl = e.target.closest && e.target.closest("[data-link]");
+    if(linkEl){
+      const { node } = find(linkEl.getAttribute("data-link")) || {};
+      if(node && node.link) window.open(node.link, "_blank", "noopener,noreferrer");
+      return;
+    }
+    const toggleEl = e.target.closest && e.target.closest("[data-toggle]");
+    if(toggleEl){ toggleCollapse(toggleEl.getAttribute("data-toggle")); return; }
+    const id = e.target.getAttribute && e.target.getAttribute("data-id");
+    start = {x:e.clientX, y:e.clientY};
+    // Symétrique du release : si la capture échoue, on ne doit pas perdre la sélection/le lasso.
+    try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+    if(id){
+      if(e.shiftKey){ selToggle(id); return; } // Shift+clic : ajouter/retirer de la sélection
+      mode = "pressNode"; pressId = id; dragMoved = false;
+      select(id);
+    } else if(e.shiftKey){
+      // Shift + glisser sur le fond : lasso de sélection
+      mode = "marquee";
+      marqStart = clientToWorld(e.clientX, e.clientY);
+      marqRect = null;
+      start = {x:e.clientX, y:e.clientY};
+    } else {
+      if(sel.size) clearSel();      // clic sur le fond : tout désélectionner
+      mode = "pan"; viewStart = {tx:view.tx, ty:view.ty};
+      svg.classList.add("panning");
+    }
+  });
+
+  svg.addEventListener("pointermove", (e)=>{
+    if(!mode) return;
+    const dx = e.clientX-start.x, dy = e.clientY-start.y;
+    if(mode==="pan"){
+      view.tx = viewStart.tx + dx; view.ty = viewStart.ty + dy; applyView();
+    } else if(mode==="marquee"){
+      const cur = clientToWorld(e.clientX, e.clientY);
+      marqRect = { x: Math.min(marqStart.x, cur.x), y: Math.min(marqStart.y, cur.y),
+                   w: Math.abs(cur.x - marqStart.x), h: Math.abs(cur.y - marqStart.y) };
+      drawMarquee(marqRect);
+    } else if(mode==="dragImage" || mode==="resizeImage" || mode==="dragSticky" || mode==="resizeSticky"){
+      if(!imgPushed){
+        if(Math.abs(dx)+Math.abs(dy) < 3) return; // simple clic : pas d'entrée d'historique
+        pushHistory(); imgPushed = true;
+      }
+      if(mode==="dragImage" || mode==="dragSticky"){
+        dragImg.x = Math.round(imgStart.x + dx/view.s);
+        dragImg.y = Math.round(imgStart.y + dy/view.s);
+      } else if(mode==="resizeImage"){
+        const ratio = imgStart.h / imgStart.w; // proportions verrouillées
+        const w = Math.max(24, Math.round(imgStart.w + dx/view.s));
+        dragImg.w = w; dragImg.h = Math.max(24, Math.round(w*ratio));
+      } else { // resizeSticky : largeur et hauteur libres
+        dragImg.w = Math.max(60, Math.round(imgStart.w + dx/view.s));
+        dragImg.h = Math.max(40, Math.round(imgStart.h + dy/view.s));
+      }
+      render();
+    } else if(mode==="pressNode"){
+      if(Math.abs(dx)+Math.abs(dy) > 6){
+        mode = "dragNode"; dragMoved = true;
+        const g = vp.querySelector(`g[data-id="${pressId}"]`);
+        if(g) g.classList.add("dragging");
+      }
+    } else if(mode==="dragNode"){
+      const over = nodeElAt(e.clientX, e.clientY);
+      let newTarget = null, newMode = null;
+      if(over && over !== pressId){
+        const dr = find(pressId);
+        if(dr && !isDescendant(dr.node, over)){
+          const tg = find(over);
+          if(tg){
+            if(!tg.parent || over === displayRoot().id){
+              // racine (ou racine du focus) : seul "devenir enfant" a un sens
+              newTarget = over; newMode = "child";
+            } else {
+              const gEl = vp.querySelector(`g[data-id="${over}"]`);
+              const rEl = gEl && gEl.querySelector("rect");
+              if(rEl){
+                const rb = rEl.getBoundingClientRect();
+                const t = (e.clientY - rb.top) / Math.max(1, rb.height);
+                newMode = t < 0.3 ? "before" : (t > 0.7 ? "after" : "child");
+                newTarget = over;
+              }
+            }
+          }
+        }
+      }
+      if(newTarget !== dropTargetId || newMode !== dropMode){
+        clearDrop();
+        dropTargetId = newTarget; dropMode = newMode;
+        if(dropTargetId){
+          if(dropMode === "child"){
+            const g = vp.querySelector(`g[data-id="${dropTargetId}"]`);
+            if(g) g.classList.add("drop-target");
+          } else {
+            const tg = find(dropTargetId);
+            if(tg) showInsertLine(tg.node, dropMode);
+          }
+        }
+      }
+    }
+  });
+
+  // Rectangle du lasso (dessiné dans le repère de la carte)
+  function drawMarquee(r){
+    let el = document.getElementById("marquee");
+    if(!el){
+      el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      el.setAttribute("id", "marquee");
+      el.setAttribute("fill", "rgba(59,130,246,.12)");
+      el.setAttribute("stroke", "#3b82f6");
+      el.setAttribute("stroke-width", "1.5");
+      el.setAttribute("stroke-dasharray", "5 3");
+      el.setAttribute("pointer-events", "none");
+      vp.appendChild(el);
+    }
+    el.setAttribute("x", r.x); el.setAttribute("y", r.y);
+    el.setAttribute("width", r.w); el.setAttribute("height", r.h);
+  }
+  function removeMarquee(){ const el = document.getElementById("marquee"); if(el) el.remove(); }
+
+  // Ligne verte d'insertion (dépôt avant/après un frère)
+  function showInsertLine(n, where){
+    removeInsertLine();
+    const y = where === "before" ? (n.y - n.h/2 - V_GAP/2) : (n.y + n.h/2 + V_GAP/2);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("id", "insertLine");
+    line.setAttribute("x1", n.x - 6); line.setAttribute("x2", n.x + n.w + 6);
+    line.setAttribute("y1", y); line.setAttribute("y2", y);
+    line.setAttribute("stroke", "#22c55e"); line.setAttribute("stroke-width", "3");
+    line.setAttribute("stroke-linecap", "round");
+    line.setAttribute("pointer-events", "none");
+    vp.appendChild(line);
+  }
+  function removeInsertLine(){ const l = document.getElementById("insertLine"); if(l) l.remove(); }
+
+  function clearDrop(){
+    if(dropTargetId){
+      const g = vp.querySelector(`g[data-id="${dropTargetId}"]`);
+      if(g) g.classList.remove("drop-target");
+      dropTargetId = null;
+    }
+    dropMode = null;
+    removeInsertLine();
+  }
+
+  svg.addEventListener("pointerup", (e)=>{
+    try{ svg.releasePointerCapture(e.pointerId);}catch(_){}
+    svg.classList.remove("panning");
+    if(mode==="marquee"){
+      removeMarquee();
+      if(marqRect && (marqRect.w > 3 || marqRect.h > 3)) selectInRect(marqRect);
+      marqStart = null; marqRect = null;
+    } else if(mode==="dragNode"){
+      if(dropTargetId){
+        if(dropMode === "child") reparent(pressId, dropTargetId);
+        else moveNodeRelative(pressId, dropTargetId, dropMode);
+      }
+      else render();
+    } else if(mode==="pressNode" && pressId){
+      // Double-clic détecté manuellement : deux clics sur le même nœud en < 400 ms.
+      const now = performance.now();
+      if(lastClickId === pressId && (now - lastClickTime) < 400){
+        startEdit(pressId);
+        lastClickId = null; lastClickTime = 0;
+      } else {
+        lastClickId = pressId; lastClickTime = now;
+      }
+    } else if(mode==="dragSticky" && !imgPushed && pressId){
+      // Post-it non déplacé : double-clic = éditer le texte
+      const now = performance.now();
+      if(lastClickId === pressId && (now - lastClickTime) < 400){
+        startStickyEdit(pressId);
+        lastClickId = null; lastClickTime = 0;
+      } else {
+        lastClickId = pressId; lastClickTime = now;
+      }
+    }
+    clearDrop();
+    mode = null; pressId = null; dragImg = null; imgStart = null; imgPushed = false;
+  });
+
+  // Wheel zoom (centered on cursor)
+  svg.addEventListener("wheel", (e)=>{
+    e.preventDefault();
+    const rect = svg.getBoundingClientRect();
+    const px = e.clientX-rect.left, py = e.clientY-rect.top;
+    const factor = e.deltaY<0 ? 1.1 : 1/1.1;
+    const ns = Math.min(3, Math.max(.15, view.s*factor));
+    view.tx = px - (px-view.tx)*(ns/view.s);
+    view.ty = py - (py-view.ty)*(ns/view.s);
+    view.s = ns;
+    applyView();
+    save();
+  }, {passive:false});
+
+  function zoomBy(f){
+    const rect = svg.getBoundingClientRect();
+    const px = rect.width/2, py = rect.height/2;
+    const ns = Math.min(3, Math.max(.15, view.s*f));
+    view.tx = px-(px-view.tx)*(ns/view.s);
+    view.ty = py-(py-view.ty)*(ns/view.s);
+    view.s = ns; applyView();
+  }
+
+  // ---------- Presse-papiers : copier / couper / coller des nœuds ----------
+  let clipTree = null;        // sous-arbre copié (structure riche : couleurs, notes, liens, priorités…)
+  let clipText = "";          // même contenu en Markdown (pour le presse-papiers système)
+  let clipSystemOk = false;   // a-t-on réussi à écrire dans le presse-papiers système ?
+  let copyEventSeen = false;
+
+  function cloneSubtree(n){
+    const c = makeNode(n.text, n.color);
+    c.link = n.link || ""; c.note = n.note || "";
+    c.check = (n.check==null ? null : !!n.check);
+    c.priority = (n.priority==null ? null : n.priority);
+    c.collapsed = !!n.collapsed;
+    c.children = n.children.map(cloneSubtree);
+    return c;
+  }
+  // Sérialise un sous-arbre en liste à puces : c'est ce qui rend la copie lisible hors de YGmind.
+  function subtreeToMarkdown(n){
+    const lines = [];
+    (function walk(node, depth){
+      const ind = "  ".repeat(depth);
+      const bullet = node.check!=null ? (node.check ? "- [x] " : "- [ ] ") : "- ";
+      const body = node.link ? `[${node.text}](${node.link})` : node.text;
+      lines.push(ind + bullet + body);
+      node.children.forEach(c=>walk(c, depth+1));
+    })(n, 0);
+    return lines.join("\n");
+  }
+  function copySelection(){
+    if(!selectedId) return false;
+    const r = find(selectedId); if(!r) return false;
+    clipTree = cloneSubtree(r.node);
+    clipText = subtreeToMarkdown(r.node);
+    return true;
+  }
+  function pasteNodesInto(targetId, nodes){
+    if(!nodes || !nodes.length) return;
+    const { node } = find(targetId) || {}; if(!node) return;
+    pushHistory();
+    node.collapsed = false;
+    nodes.forEach(n => node.children.push(n));
+    selSet(nodes[0].id);
+    render();
+  }
+  // Événements natifs : marchent sans permission et hors contexte sécurisé (file://).
+  window.addEventListener("copy", (e)=>{
+    if(editingId!=null) return;
+    const tag = ((e.target && e.target.tagName) || "").toLowerCase();
+    if(tag==="input" || tag==="textarea") return;
+    if(!copySelection()) return;
+    e.preventDefault();
+    e.clipboardData.setData("text/plain", clipText);
+    clipSystemOk = true; copyEventSeen = true;
+  });
+  window.addEventListener("cut", (e)=>{
+    if(editingId!=null) return;
+    const tag = ((e.target && e.target.tagName) || "").toLowerCase();
+    if(tag==="input" || tag==="textarea") return;
+    const r = selectedId && find(selectedId);
+    if(!r || !r.parent) return; // on ne coupe pas la racine
+    if(!copySelection()) return;
+    e.preventDefault();
+    e.clipboardData.setData("text/plain", clipText);
+    clipSystemOk = true; copyEventSeen = true;
+    removeNode(selectedId);
+  });
+
+  // ---------- Coller : image > nœuds copiés > texte (plan) ----------
+  window.addEventListener("paste", (e)=>{
+    if(editingId!=null) return;
+    const tag = ((e.target && e.target.tagName) || "").toLowerCase();
+    if(tag==="input" || tag==="textarea") return;
+    // 1) une image dans le presse-papiers
+    const items = (e.clipboardData && e.clipboardData.items) || [];
+    for(const it of items){
+      if(it.kind === "file" && /^image\//i.test(it.type)){
+        const f = it.getAsFile();
+        if(f){ e.preventDefault(); const c = viewCenterWorld(); addImageAt(f, c.x, c.y); return; }
+      }
+    }
+    const target = selectedId || root.id;
+    const text = ((e.clipboardData && e.clipboardData.getData("text/plain")) || "").trim();
+    // 2) nos propres nœuds : structure riche préservée.
+    //    Si l'écriture système a échoué, le texte du presse-papiers n'est pas le nôtre : on garde l'interne.
+    const useInternal = clipTree && (!text || !clipSystemOk || text === clipText.trim());
+    if(useInternal){
+      e.preventDefault();
+      pasteNodesInto(target, [cloneSubtree(clipTree)]);
+      return;
+    }
+    // 3) du texte venu d'ailleurs : on le lit comme un plan
+    if(text){
+      const nodes = buildForest(parseOutline(text));
+      if(nodes.length){ e.preventDefault(); pasteNodesInto(target, nodes); }
+    }
+  });
+  // Le navigateur ouvrirait le fichier à la place : on neutralise partout.
+  window.addEventListener("dragover", (e)=>{ e.preventDefault(); });
+  window.addEventListener("drop", (e)=>{ e.preventDefault(); });
+  svg.addEventListener("drop", (e)=>{
+    const files = (e.dataTransfer && e.dataTransfer.files) || [];
+    if(!files.length) return;
+    e.preventDefault(); e.stopPropagation();
+    const f = files[0];
+    if(/^image\//i.test(f.type)){ const p = clientToWorld(e.clientX, e.clientY); addImageAt(f, p.x, p.y); }
+    else if(/\.xmind$/i.test(f.name)) importXmindFile(f);   // bonus : déposer une carte l'ouvre
+    else if(/\.(html?|xhtml)$/i.test(f.name)) importHtmlFile(f);
+    else if(/\.(ygmind|json)$/i.test(f.name)) loadJson(f);
+    else alert("Format non reconnu — dépose une image, un .ygmind, un .xmind, un .html ou un .json.");
+  });
+
+  // ---------- Menu contextuel (clic droit sur un nœud) ----------
+  const ctxmenu = document.createElement("div");
+  ctxmenu.id = "ctxmenu";
+  document.body.appendChild(ctxmenu);
+  function hideCtx(){ ctxmenu.style.display = "none"; }
+  function showCtxForNode(id, clientX, clientY){
+    const { node } = find(id) || {}; if(!node) return;
+    select(id);
+    ctxmenu.innerHTML = "";
+    const colors = document.createElement("div");
+    colors.className = "ctx-colors";
+    PALETTE.forEach(col=>{
+      const sw = document.createElement("button");
+      sw.className = "ctx-swatch" + ((node.color||"").toLowerCase()===col.toLowerCase() ? " active" : "");
+      sw.style.background = col; sw.title = col;
+      sw.onclick = ()=>{ setColor(id, col); hideCtx(); };
+      colors.appendChild(sw);
+    });
+    ctxmenu.appendChild(colors);
+    // Rangée de priorités : chips 1-6 + retirer
+    const prios = document.createElement("div");
+    prios.className = "ctx-prio";
+    for(let p=1;p<=6;p++){
+      const b = document.createElement("button");
+      b.className = "prio-chip" + (node.priority===p ? " active" : "");
+      b.style.background = P_COLORS[p];
+      b.style.color = textColorFor(P_COLORS[p]);
+      b.textContent = p;
+      b.title = "Priorité " + p + (node.priority===p ? " (re-cliquer : retirer)" : "");
+      b.onclick = ()=>{ hideCtx(); setPriority(id, p); };
+      prios.appendChild(b);
+    }
+    const noP = document.createElement("button");
+    noP.className = "prio-chip none";
+    noP.textContent = "✕";
+    noP.title = "Retirer la priorité";
+    noP.onclick = ()=>{ hideCtx(); setPriority(id, null); };
+    prios.appendChild(noP);
+    ctxmenu.appendChild(prios);
+    const sep = document.createElement("div"); sep.className = "ctx-sep"; ctxmenu.appendChild(sep);
+    const items = [
+      { label:"✎ Renommer", fn:()=>startEdit(id) },
+      { label:"＋ Ajouter un enfant", fn:()=>addChild(id) },
+      { label:"＋ Ajouter un frère", fn:()=>addSibling(id) },
+      { label:"✨ Développer avec l'IA", fn:()=>expandNode(id) },
+      ...(node.children.length>1 ? [{ label:"⇅ Trier les enfants par priorité", fn:()=>sortByPriority(id) }] : []),
+      { sep:true },
+      { label: focusId===id ? "🔍 Sortir du focus" : "🔍 Focus (isoler)", fn:()=> focusId===id ? clearFocus() : setFocus(id) },
+      { label: node.note && node.note.trim() ? "📝 Ouvrir la note" : "📝 Ajouter une note", fn:()=>openNotePanel(id) },
+      { label: node.check==null ? "☑ Transformer en tâche" : "✕ Retirer la tâche", fn:()=>toggleTask(id) },
+      { label: node.link ? "🔗 Modifier le lien…" : "🔗 Ajouter un lien…", fn:()=>setLink(id) },
+      { sep:true },
+      { label:"🗑 Supprimer", fn:()=>removeNode(id), danger:true },
+    ];
+    items.forEach(it=>{
+      if(it.sep){ const s = document.createElement("div"); s.className = "ctx-sep"; ctxmenu.appendChild(s); return; }
+      const b = document.createElement("button");
+      b.className = "ctx-item" + (it.danger ? " danger" : "");
+      b.textContent = it.label;
+      b.onclick = ()=>{ hideCtx(); it.fn(); };
+      ctxmenu.appendChild(b);
+    });
+    // affiche puis positionne en restant dans la fenêtre
+    ctxmenu.style.display = "block";
+    ctxmenu.style.left = "-9999px"; ctxmenu.style.top = "-9999px";
+    const mw = ctxmenu.offsetWidth, mh = ctxmenu.offsetHeight;
+    let x = clientX, y = clientY;
+    if(x + mw > window.innerWidth) x = window.innerWidth - mw - 8;
+    if(y + mh > window.innerHeight) y = window.innerHeight - mh - 8;
+    ctxmenu.style.left = Math.max(6, x) + "px";
+    ctxmenu.style.top = Math.max(6, y) + "px";
+  }
+  function showCtxForSticky(id, clientX, clientY){
+    const s = stickies.find(x=>x.id===id); if(!s) return;
+    selectSticky(id);
+    ctxmenu.innerHTML = "";
+    const colors = document.createElement("div");
+    colors.className = "ctx-colors";
+    STICKY_COLORS.forEach(col=>{
+      const sw = document.createElement("button");
+      sw.className = "ctx-swatch" + (s.color.toLowerCase()===col.toLowerCase() ? " active" : "");
+      sw.style.background = col; sw.title = "Couleur du post-it";
+      sw.onclick = ()=>{ hideCtx(); setStickyColor(id, col); };
+      colors.appendChild(sw);
+    });
+    ctxmenu.appendChild(colors);
+    const sep = document.createElement("div"); sep.className = "ctx-sep"; ctxmenu.appendChild(sep);
+    [ { label:"✎ Modifier le texte", fn:()=>startStickyEdit(id) },
+      { label:"🗑 Supprimer le post-it", fn:()=>removeSticky(id), danger:true } ].forEach(it=>{
+      const b = document.createElement("button");
+      b.className = "ctx-item" + (it.danger?" danger":"");
+      b.textContent = it.label;
+      b.onclick = ()=>{ hideCtx(); it.fn(); };
+      ctxmenu.appendChild(b);
+    });
+    ctxmenu.style.display = "block";
+    ctxmenu.style.left = "-9999px"; ctxmenu.style.top = "-9999px";
+    const mw = ctxmenu.offsetWidth, mh = ctxmenu.offsetHeight;
+    let x = clientX, y = clientY;
+    if(x + mw > window.innerWidth) x = window.innerWidth - mw - 8;
+    if(y + mh > window.innerHeight) y = window.innerHeight - mh - 8;
+    ctxmenu.style.left = Math.max(6, x) + "px";
+    ctxmenu.style.top = Math.max(6, y) + "px";
+  }
+  svg.addEventListener("contextmenu", (e)=>{
+    const st = e.target.closest && e.target.closest("[data-sticky]");
+    if(st){ e.preventDefault(); showCtxForSticky(st.getAttribute("data-sticky"), e.clientX, e.clientY); return; }
+    const g = e.target.closest && e.target.closest("[data-id]");
+    const id = g && g.getAttribute("data-id");
+    if(id){ e.preventDefault(); showCtxForNode(id, e.clientX, e.clientY); }
+  });
+  window.addEventListener("pointerdown", (e)=>{ if(!ctxmenu.contains(e.target)) hideCtx(); }, true);
+  window.addEventListener("blur", hideCtx);
+  window.addEventListener("wheel", hideCtx, {passive:true});
+  window.addEventListener("keydown", (e)=>{ if(e.key==="Escape") hideCtx(); }, true);
+
+  // ---------- Notes (panneau latéral) ----------
+  const notepanel = document.getElementById("notepanel");
+  const npText = document.getElementById("npText");
+  const npTitle = document.getElementById("npTitle");
+  let noteEditId = null, notePushed = false;
+  function openNotePanel(id){
+    const { node } = find(id)||{}; if(!node) return;
+    select(id);
+    noteEditId = id; notePushed = false;
+    npTitle.textContent = node.text || "Sans titre";
+    npText.value = node.note || "";
+    notepanel.classList.add("open");
+    npText.focus();
+  }
+  function closeNotePanel(){ noteEditId = null; notepanel.classList.remove("open"); }
+  npText.addEventListener("input", ()=>{
+    if(noteEditId==null) return;
+    const { node } = find(noteEditId)||{}; if(!node) return;
+    if(!notePushed){ pushHistory(); notePushed = true; }
+    node.note = npText.value;
+    render();
+  });
+  npText.addEventListener("keydown", (e)=>{
+    if(e.key==="Escape"){ e.preventDefault(); closeNotePanel(); }
+    e.stopPropagation();
+  });
+  document.getElementById("npClose").onclick = closeNotePanel;
+
+  // ---------- Markdown (import / export) ----------
+  function toMarkdown(){
+    const lines = [];
+    (function walk(n, depth){
+      let text = n.text || "";
+      let bullet;
+      if(depth===0) bullet = "# ";
+      else if(n.check!=null) bullet = "  ".repeat(depth-1) + (n.check ? "- [x] " : "- [ ] ");
+      else bullet = "  ".repeat(depth-1) + "- ";
+      const body = n.link ? `[${text}](${n.link})` : text;
+      lines.push(bullet + body);
+      n.children.forEach(c=>walk(c, depth+1));
+    })(root, 0);
+    return lines.join("\n") + "\n";
+  }
+  function exportMarkdown(){ download(new Blob([toMarkdown()],{type:"text/markdown;charset=utf-8"}), docTitle()+".md"); }
+
+  function parseOutline(txt){
+    const items = [];
+    let headingBase = -1;
+    txt.replace(/\r/g,"").split("\n").forEach(raw=>{
+      if(!raw.trim()) return;
+      const hm = raw.match(/^\s*(#{1,6})\s+(.*)$/);
+      let level, text;
+      if(hm){ level = hm[1].length - 1; headingBase = level; text = hm[2]; }
+      else {
+        const m = raw.match(/^(\s*)(?:[-*+]\s+|\d+[.)]\s+)?(.*)$/);
+        const indent = m[1].replace(/\t/g,"  ");
+        level = (headingBase>=0 ? headingBase+1 : 0) + Math.floor(indent.length/2);
+        text = m[2];
+      }
+      let check = null;
+      const cm = text.match(/^\[([ xX])\]\s+(.*)$/);
+      if(cm){ check = /x/i.test(cm[1]); text = cm[2]; }
+      let link = "";
+      const lm = text.trim().match(/^\[(.+?)\]\((\S+?)\)$/);
+      if(lm){ text = lm[1]; link = lm[2]; }
+      items.push({ level, text: text.trim(), check, link });
+    });
+    return items;
+  }
+  // Construit la forêt (plusieurs racines possibles) — réutilisé par l'import ET le collage de texte
+  function buildForest(items){
+    if(!items.length) return [];
+    const minLevel = Math.min(...items.map(i=>i.level));
+    const roots = [], stack = [];
+    for(const it of items){
+      const lvl = it.level - minLevel;
+      const node = makeNode(it.text);
+      if(it.check!=null) node.check = it.check;
+      if(it.link) node.link = it.link;
+      let parent = null;
+      for(let k=lvl-1;k>=0;k--){ if(stack[k]){ parent = stack[k]; break; } }
+      if(parent) parent.children.push(node); else roots.push(node);
+      stack[lvl] = node; stack.length = lvl+1;
+    }
+    return roots;
+  }
+  function buildFromOutline(items){
+    const roots = buildForest(items);
+    if(!roots.length) return null;
+    if(roots.length===1) return roots[0];
+    const r = makeNode("Carte");
+    r.children = roots;
+    return r;
+  }
+  const modal = document.getElementById("modal");
+  const mdTextEl = document.getElementById("mdText");
+  function openModal(){ mdTextEl.value = ""; modal.classList.add("open"); setTimeout(()=>mdTextEl.focus(), 30); }
+  function closeModal(){ modal.classList.remove("open"); }
+  function importMarkdown(){
+    const tree = buildFromOutline(parseOutline(mdTextEl.value));
+    if(!tree){ alert("Rien à importer — colle une liste à puces ou des titres."); return; }
+    pushHistory();
+    root = tree; selectedId = root.id;
+    closeModal(); render(); fit();
+  }
+  document.getElementById("mdCancel").onclick = closeModal;
+  document.getElementById("mdImport").onclick = importMarkdown;
+  modal.addEventListener("pointerdown", (e)=>{ if(e.target===modal) closeModal(); });
+
+  // ---------- Import XMind (.xmind = ZIP contenant content.json ou content.xml) ----------
+  // Lecteur ZIP minimal, zéro dépendance : DecompressionStream natif du navigateur.
+  function readZip(buf){
+    const dv = new DataView(buf);
+    // End Of Central Directory (signature 0x06054b50), cherché depuis la fin
+    let eocd = -1;
+    const stop = Math.max(0, buf.byteLength - 22 - 65535);
+    for(let i = buf.byteLength - 22; i >= stop; i--){
+      if(dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+    }
+    if(eocd < 0) throw new Error("fichier ZIP invalide");
+    const count = dv.getUint16(eocd + 10, true);
+    let off = dv.getUint32(eocd + 16, true);
+    const entries = {};
+    for(let i = 0; i < count; i++){
+      if(dv.getUint32(off, true) !== 0x02014b50) break;
+      const method  = dv.getUint16(off + 10, true);
+      const compSize= dv.getUint32(off + 20, true);
+      const nameLen = dv.getUint16(off + 28, true);
+      const extraLen= dv.getUint16(off + 30, true);
+      const cmtLen  = dv.getUint16(off + 32, true);
+      const lho     = dv.getUint32(off + 42, true);
+      const name = new TextDecoder().decode(new Uint8Array(buf, off + 46, nameLen));
+      entries[name] = { method, compSize, lho };
+      off += 46 + nameLen + extraLen + cmtLen;
+    }
+    return { dv, buf, entries };
+  }
+  async function zipExtract(zip, name){
+    const e = zip.entries[name];
+    if(!e) return null;
+    if(zip.dv.getUint32(e.lho, true) !== 0x04034b50) throw new Error("entrée ZIP corrompue");
+    const nameLen  = zip.dv.getUint16(e.lho + 26, true);
+    const extraLen = zip.dv.getUint16(e.lho + 28, true);
+    const raw = new Uint8Array(zip.buf, e.lho + 30 + nameLen + extraLen, e.compSize);
+    if(e.method === 0) return new TextDecoder().decode(raw);
+    if(e.method === 8){
+      if(typeof DecompressionStream === "undefined") throw new Error("navigateur trop ancien (DecompressionStream requis)");
+      const stream = new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return await new Response(stream).text();
+    }
+    throw new Error("méthode de compression non supportée");
+  }
+  // XMind moderne (2020+) : content.json
+  function fromXmindTopic(t){
+    const n = makeNode(String(t.title || ""));
+    const fill = t.style && t.style.properties && (t.style.properties["svg:fill"] || t.style.properties.fill);
+    if(typeof fill === "string" && /^#[0-9a-fA-F]{3,8}$/.test(fill)) n.color = fill;
+    if(typeof t.href === "string" && /^(https?:|mailto:)/i.test(t.href)) n.link = t.href;
+    const note = t.notes && t.notes.plain && t.notes.plain.content;
+    if(typeof note === "string" && note.trim()) n.note = note;
+    for(const m of (t.markers || [])){
+      const id = (m && m.markerId) || "";
+      if(id === "task-done") n.check = true;
+      else if(/^task-/.test(id) && n.check == null) n.check = false;
+      const pm = /^priority-(\d)/.exec(id);
+      if(pm){ const p = parseInt(pm[1],10); if(p>=1&&p<=6) n.priority = p; }
+    }
+    n.children = (((t.children || {}).attached) || []).map(fromXmindTopic);
+    return n;
+  }
+  // XMind 8 (legacy) : content.xml
+  function fromXmindXmlTopic(el){
+    const n = makeNode("");
+    const titleEl = el.querySelector(":scope > title");
+    n.text = titleEl ? titleEl.textContent.trim() : "";
+    const href = el.getAttribute("xlink:href") || el.getAttribute("href");
+    if(href && /^(https?:|mailto:)/i.test(href)) n.link = href;
+    const noteEl = el.querySelector(":scope > notes > plain");
+    if(noteEl && noteEl.textContent.trim()) n.note = noteEl.textContent.trim();
+    el.querySelectorAll(":scope > marker-refs > marker-ref").forEach(m=>{
+      const id = m.getAttribute("marker-id") || "";
+      if(id === "task-done") n.check = true;
+      else if(/^task-/.test(id) && n.check == null) n.check = false;
+      const pm = /^priority-(\d)/.exec(id);
+      if(pm){ const p = parseInt(pm[1],10); if(p>=1&&p<=6) n.priority = p; }
+    });
+    n.children = [...el.querySelectorAll(":scope > children > topics[type='attached'] > topic")].map(fromXmindXmlTopic);
+    return n;
+  }
+  async function importXmindFile(file){
+    try{
+      const zip = readZip(await file.arrayBuffer());
+      let tree = null;
+      if(zip.entries["content.json"]){
+        const sheets = JSON.parse(await zipExtract(zip, "content.json")).filter(s => s && s.rootTopic);
+        if(!sheets.length) throw new Error("aucune feuille trouvée");
+        if(sheets.length === 1) tree = fromXmindTopic(sheets[0].rootTopic);
+        else { tree = makeNode("Classeur XMind"); tree.children = sheets.map(s => fromXmindTopic(s.rootTopic)); }
+      } else if(zip.entries["content.xml"]){
+        const doc = new DOMParser().parseFromString(await zipExtract(zip, "content.xml"), "text/xml");
+        const topics = [...doc.querySelectorAll("sheet > topic")];
+        if(!topics.length) throw new Error("aucune feuille trouvée");
+        if(topics.length === 1) tree = fromXmindXmlTopic(topics[0]);
+        else { tree = makeNode("Classeur XMind"); tree.children = topics.map(fromXmindXmlTopic); }
+      } else {
+        throw new Error("content.json / content.xml introuvable — est-ce bien un fichier XMind ?");
+      }
+      // Import = nouvelle carte dans la bibliothèque (n'écrase jamais la carte ouverte)
+      persistCurrent();
+      const name = (file.name || "").replace(/\.xmind$/i, "") || tree.text || "Import XMind";
+      const id = createMapWithJson(name, docJsonFrom(tree, [], []), false); // nom figé (fichier)
+      if(id) switchToMap(id);
+    }catch(e){
+      alert("Import XMind impossible : " + e.message);
+    }
+  }
+
+  // ---------- Import HTML (page web, export d'outil, etc.) ----------
+  // Convertit la structure d'un document HTML en arborescence :
+  //  • les titres h1..h6 donnent la hiérarchie ;
+  //  • les listes ul/ol/li s'imbriquent sous le titre courant (imbrication conservée) ;
+  //  • cases à cocher (input checkbox) → tâches ; premier lien <a href> → lien du nœud ;
+  //  • à défaut de structure, les paragraphes deviennent des enfants directs.
+  function htmlToOutline(container){
+    const items = [];
+    let headingBase = -1;
+    const clean = (s)=> (s||"").replace(/\s+/g," ").trim();
+    function firstLink(el){
+      const a = el.querySelector && el.querySelector("a[href]");
+      if(a){ const h = a.getAttribute("href") || ""; if(/^(https?:|mailto:)/i.test(h)) return h; }
+      return "";
+    }
+    function directText(el){
+      const clone = el.cloneNode(true);
+      clone.querySelectorAll("ul,ol").forEach(n=>n.remove()); // exclut les sous-listes
+      return clean(clone.textContent);
+    }
+    function walkList(listEl, level){
+      for(const li of listEl.children){
+        if(li.tagName !== "LI") continue;
+        let check = null;
+        const cb = li.querySelector(":scope > input[type=checkbox], :scope > label > input[type=checkbox]");
+        if(cb) check = cb.checked;
+        const text = directText(li);
+        if(text || check != null) items.push({ level, text: text || "—", check, link: firstLink(li) });
+        for(const sub of li.children){
+          if(sub.tagName === "UL" || sub.tagName === "OL") walkList(sub, level + 1);
+        }
+      }
+    }
+    function walk(el){
+      for(const child of el.children){
+        const tag = child.tagName;
+        const hm = /^H([1-6])$/.exec(tag);
+        if(hm){
+          const level = parseInt(hm[1], 10) - 1;
+          headingBase = level;
+          const t = clean(child.textContent);
+          if(t) items.push({ level, text: t, check: null, link: firstLink(child) });
+        } else if(tag === "UL" || tag === "OL"){
+          walkList(child, headingBase >= 0 ? headingBase + 1 : 0);
+        } else if(tag === "SCRIPT" || tag === "STYLE" || tag === "NAV" || tag === "HEADER" || tag === "FOOTER"){
+          // ignore le chrome de page
+        } else {
+          walk(child); // conteneurs : section, article, div, main, body…
+        }
+      }
+    }
+    walk(container);
+    return items;
+  }
+  function htmlToTree(htmlText, fallbackName){
+    const doc = new DOMParser().parseFromString(htmlText, "text/html");
+    const title = (doc.title || "").trim();
+    const container = doc.body || doc.documentElement;
+    if(!container) return null;
+    let items = htmlToOutline(container);
+    if(!items.length){
+      // Aucun titre/liste : on retombe sur les paragraphes (enfants directs).
+      const blocks = [...container.querySelectorAll("p,blockquote,dd,td,figcaption")]
+        .map(p=>(p.textContent||"").replace(/\s+/g," ").trim())
+        .filter(t=>t.length);
+      items = blocks.map(t=>({ level: 0, text: t.slice(0, 300), check: null, link: "" }));
+    }
+    if(!items.length) return null;
+    const roots = buildForest(items);
+    if(!roots.length) return null;
+    if(roots.length === 1) return roots[0];
+    const r = makeNode(title || fallbackName || "Page HTML");
+    r.children = roots;
+    return r;
+  }
+  async function importHtmlFile(file){
+    try{
+      const base = (file.name || "").replace(/\.(html?|xhtml)$/i, "");
+      const tree = htmlToTree(await file.text(), base);
+      if(!tree){ alert("Aucun contenu structuré trouvé dans ce HTML (titres, listes ou paragraphes)."); return; }
+      // Import = nouvelle carte dans la bibliothèque (n'écrase jamais la carte ouverte)
+      persistCurrent();
+      const name = base || tree.text || "Import HTML";
+      const id = createMapWithJson(name, docJsonFrom(tree, [], []), false); // nom figé (fichier)
+      if(id) switchToMap(id);
+    }catch(e){
+      alert("Import HTML impossible : " + e.message);
+    }
+  }
+
+  // ---------- IA (optionnelle — Claude via l'API, clé locale) ----------
+  // Modèle par défaut : Haiku 4.5 (rapide + économique). Pour plus de finesse,
+  // remplace par "claude-sonnet-5" ou "claude-opus-4-8" (plus cher).
+  const AI_MODEL = "claude-haiku-4-5";
+  const AI_KEY_STORE = "ygmind.aikey";
+  function getStoredKey(){ try{ return localStorage.getItem(AI_KEY_STORE) || ""; }catch(e){ return ""; } }
+  function setAiKey(){
+    const cur = getStoredKey();
+    const input = prompt(
+      "Clé API Claude (sk-ant-…).\nElle reste sur cet ordinateur (localStorage) et n'est JAMAIS incluse dans les exports .json/.md.\nLaisse vide pour la retirer.",
+      cur
+    );
+    if(input === null) return cur; // annulé
+    const v = input.trim();
+    try{ if(v) localStorage.setItem(AI_KEY_STORE, v); else localStorage.removeItem(AI_KEY_STORE); }catch(e){}
+    return v;
+  }
+  function ensureKey(){ return getStoredKey() || setAiKey(); }
+  function pathToNode(id, node=root, trail=[]){
+    const t = trail.concat(node);
+    if(node.id === id) return t;
+    for(const c of node.children){ const r = pathToNode(id, c, t); if(r) return r; }
+    return null;
+  }
+  async function callClaude(userText, maxTokens){
+    const key = ensureKey();
+    if(!key) throw new Error("Aucune clé API configurée.");
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        max_tokens: maxTokens || 400,
+        messages: [{ role: "user", content: userText }]
+      })
+    });
+    if(!res.ok){
+      let msg = "HTTP " + res.status;
+      try{ const j = await res.json(); if(j.error && j.error.message) msg = j.error.message; }catch(_){}
+      if(res.status === 401) msg = "Clé API invalide (401). Reconfigure-la avec ⚙︎.";
+      throw new Error(msg);
+    }
+    const data = await res.json();
+    return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
+  }
+  async function aiChildIdeas(node){
+    const chain = pathToNode(node.id) || [node];
+    const breadcrumb = chain.map(n => n.text).filter(Boolean).join(" > ") || node.text;
+    const existing = node.children.map(c => c.text).filter(Boolean);
+    const prompt =
+`Tu aides à construire une carte mentale. Contexte, du centre vers le nœud : "${breadcrumb}".
+Propose 4 à 6 sous-idées pertinentes et concises pour développer le nœud "${node.text || breadcrumb}".
+${existing.length ? "Évite de répéter ces sous-idées déjà présentes : " + existing.join(", ") + "." : ""}
+Réponds UNIQUEMENT par la liste, une idée par ligne, sans numéro ni tiret ni phrase d'introduction. Chaque idée fait 1 à 6 mots. Réponds dans la même langue que le nœud.`;
+    const raw = await callClaude(prompt, 300);
+    const seen = new Set(existing.map(s => s.toLowerCase()));
+    return raw.split("\n")
+      .map(l => l.replace(/^\s*(?:[-*+•]|\d+[.)])\s*/, "").trim())
+      .filter(Boolean)
+      .filter(l => { const k = l.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; })
+      .slice(0, 6);
+  }
+  async function expandNode(id){
+    const { node } = find(id) || {};
+    if(!node){ alert("Sélectionne d'abord un nœud."); return; }
+    if(!ensureKey()) return; // clé annulée
+    const btn = document.getElementById("btnExpand");
+    const label = btn.textContent; btn.disabled = true; btn.textContent = "✨ …";
+    try{
+      const ideas = await aiChildIdeas(node);
+      if(!ideas.length){ alert("L'IA n'a proposé aucune nouvelle idée. Réessaie."); return; }
+      pushHistory();
+      node.collapsed = false;
+      const col = node.children[0] ? node.children[0].color : node.color;
+      ideas.forEach(t => node.children.push(makeNode(t, col)));
+      selSet(node.id);
+      render();
+    }catch(e){
+      alert("Développement IA impossible : " + e.message);
+    }finally{
+      btn.disabled = false; btn.textContent = label;
+    }
+  }
+  document.getElementById("btnExpand").onclick = ()=> expandNode(selectedId || root.id);
+  document.getElementById("btnAiKey").onclick = setAiKey;
+
+  // ---------- Keyboard ----------
+  window.addEventListener("keydown", (e)=>{
+    // Cmd/Ctrl+S : enregistrer dans le fichier (prioritaire, même en édition ou depuis l'accueil)
+    if((e.metaKey||e.ctrlKey) && (e.key==="s"||e.key==="S")){
+      e.preventDefault();
+      if(editingId!=null) commitEdit();
+      if(editingStickyId!=null) commitStickyEdit();
+      saveToFile(e.shiftKey); // Maj+S = « Enregistrer sous »
+      return;
+    }
+    if(homeEl.classList.contains("open")){ if(e.key==="Escape") closeHome(); return; }
+    if(editingId!=null || editingStickyId!=null) return;
+    const tag = (e.target.tagName||"").toLowerCase();
+    if(tag==="input"||tag==="textarea") return;
+
+    // Annuler / Rétablir
+    if((e.metaKey||e.ctrlKey) && (e.key==="z"||e.key==="Z")){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+    if((e.metaKey||e.ctrlKey) && (e.key==="y"||e.key==="Y")){ e.preventDefault(); redo(); return; }
+
+    // Tout sélectionner
+    if((e.metaKey||e.ctrlKey) && (e.key==="a"||e.key==="A")){ e.preventDefault(); selectAllVisible(); return; }
+
+    // Copier / couper : l'événement natif fait le travail s'il se déclenche ; sinon on prend le relais
+    // (user-select:none peut le supprimer selon le navigateur). On ne preventDefault surtout pas.
+    if((e.metaKey||e.ctrlKey) && !e.shiftKey && (e.key==="c"||e.key==="C"||e.key==="x"||e.key==="X")){
+      const cut = (e.key==="x"||e.key==="X");
+      copyEventSeen = false;
+      setTimeout(()=>{
+        if(copyEventSeen) return; // l'événement natif s'en est chargé
+        const r = selectedId && find(selectedId);
+        if(!r || (cut && !r.parent)) return;
+        if(!copySelection()) return;
+        clipSystemOk = false;
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(clipText).then(()=>{ clipSystemOk = true; }).catch(()=>{});
+        }
+        if(cut) removeNode(selectedId);
+      }, 0);
+      return;
+    }
+    // Dupliquer sur place (frère suivant)
+    if((e.metaKey||e.ctrlKey) && (e.key==="d"||e.key==="D")){
+      e.preventDefault();
+      const r = selectedId && find(selectedId);
+      if(r && r.parent){
+        pushHistory();
+        const copy = cloneSubtree(r.node);
+        const idx = r.parent.children.indexOf(r.node);
+        r.parent.children.splice(idx+1, 0, copy);
+        selSet(copy.id);
+        render();
+      }
+      return;
+    }
+    if(e.key==="Escape" && sel.size){ e.preventDefault(); clearSel(); return; }
+    if(e.key==="Escape" && focusId){ e.preventDefault(); clearFocus(); return; }
+
+    // Cmd/Ctrl + ↑/↓ : réordonner parmi les frères
+    if((e.metaKey||e.ctrlKey) && (e.key==="ArrowUp"||e.key==="ArrowDown")){
+      e.preventDefault();
+      if(selectedId) moveSibling(selectedId, e.key==="ArrowUp" ? -1 : 1);
+      return;
+    }
+
+    // Priorité : touches 1-6 (0 pour retirer) — sur toute la sélection
+    if(!e.metaKey && !e.ctrlKey && !e.altKey && sel.size && /^[0-6]$/.test(e.key)){
+      e.preventDefault();
+      const p = e.key==="0" ? null : parseInt(e.key,10);
+      if(sel.size > 1) setPrioritySel(p); else if(selectedId) setPriority(selectedId, p);
+      return;
+    }
+
+    if(!sel.size && ["Tab","Enter"].includes(e.key)) selSet(root.id);
+
+    if(e.key==="Tab"){ e.preventDefault(); addChild(selectedId); }
+    else if(e.key==="Enter"){ e.preventDefault(); addSibling(selectedId); }
+    else if(e.key==="Delete" || e.key==="Backspace"){ e.preventDefault(); deleteSelection(); }
+    else if(e.key==="F2"){ e.preventDefault(); if(selectedId) startEdit(selectedId); }
+    else if(e.key===" "){ e.preventDefault(); if(selectedId) toggleCollapse(selectedId); }
+    else if(e.key==="f"||e.key==="F"){ fit(); }
+    else if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){ e.preventDefault(); navigate(e.key); }
+  });
+
+  function navigate(key){
+    if(!selectedId) { selectOnly(root.id); return; }
+    const r = find(selectedId); if(!r) return;
+    const n = r.node, p = r.parent;
+    if(key==="ArrowRight" && !n.collapsed && n.children.length){ select(n.children[0].id); }
+    else if(key==="ArrowLeft" && p){ select(p.id); }
+    else if((key==="ArrowDown"||key==="ArrowUp") && p){
+      const sibs = p.children, i = sibs.indexOf(n);
+      const j = key==="ArrowDown" ? i+1 : i-1;
+      if(j>=0 && j<sibs.length) select(sibs[j].id);
+    }
+  }
+
+  // ---------- Export ----------
+  // Rendu DIRECT au canvas (aucun SVG intermédiaire) : évite la contamination
+  // du canvas par Safari et garantit un PNG/PDF fiable sur tous les navigateurs.
+  function roundRectPath(ctx,x,y,w,h,r){
+    r = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+  const imgElCache = new Map();
+  function loadImgEl(src){
+    if(imgElCache.has(src)) return Promise.resolve(imgElCache.get(src));
+    return new Promise(res=>{
+      const i = new Image();
+      i.onload = ()=>{ imgElCache.set(src, i); res(i); };
+      i.onerror = ()=>res(null);
+      i.src = src;
+    });
+  }
+  async function mapToCanvas(scale){
+    layout();
+    const pad = 44;
+    const W = (bbox.maxX-bbox.minX)+pad*2, H = (bbox.maxY-bbox.minY)+pad*2;
+    const cv = document.createElement("canvas");
+    cv.width = Math.max(1, Math.ceil(W*scale)); cv.height = Math.max(1, Math.ceil(H*scale));
+    const ctx = cv.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.translate(-bbox.minX+pad, -bbox.minY+pad);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(bbox.minX-pad, bbox.minY-pad, W, H);
+    // images flottantes (sous les arêtes et les nœuds, comme à l'écran)
+    if(!focusId){
+      for(const im of images){
+        const el = await loadImgEl(im.src);
+        if(el) ctx.drawImage(el, im.x, im.y, im.w, im.h);
+      }
+    }
+    // post-it (au-dessus des images, sous les nœuds — comme à l'écran)
+    if(!focusId){
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      for(const s of stickies){
+        roundRectPath(ctx, s.x, s.y, s.w, s.h, 2);
+        ctx.fillStyle = s.color; ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.12)"; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = textColorFor(s.color);
+        ctx.font = '500 15px Arial, system-ui, sans-serif';
+        const lines = wrap(s.text, s.w-20);
+        const maxLines = Math.max(0, Math.floor((s.h-14)/LINE));
+        lines.slice(0, maxLines).forEach((ln,i)=> ctx.fillText(ln, s.x+10, s.y+14+i*LINE));
+      }
+    }
+    // arêtes
+    ctx.strokeStyle = "#c8ccd6"; ctx.lineWidth = 2;
+    (function edges(n, isTop){
+      if(n.collapsed && !isTop) return;
+      for(const c of n.children){
+        const px=n.x+n.w, py=n.y, cx=c.x, cy=c.y, mid=(cx-px)/2;
+        ctx.beginPath(); ctx.moveTo(px,py);
+        ctx.bezierCurveTo(px+mid,py, cx-mid,cy, cx,cy); ctx.stroke();
+        edges(c, false);
+      }
+    })(displayRoot(), true);
+    // noeuds
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.lineJoin="round"; ctx.lineCap="round";
+    (function nodes(n, isTop){
+      const y0 = n.y-n.h/2;
+      // L'export reste en thème clair (document partageable) ; les couleurs custom sont gardées.
+      const effL = effFill(n, "light");
+      roundRectPath(ctx,n.x,y0,n.w,n.h,10);
+      ctx.fillStyle = effL; ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.12)"; ctx.lineWidth=1; ctx.stroke();
+      // badge de priorité
+      if(n.priority!=null){
+        const pc = P_COLORS[n.priority] || "#6b7280";
+        const pxc = n.x+15, pyc = n.y;
+        ctx.beginPath(); ctx.arc(pxc,pyc,9,0,Math.PI*2); ctx.fillStyle=pc; ctx.fill();
+        ctx.fillStyle = textColorFor(pc); ctx.font='800 11px Arial, system-ui, sans-serif';
+        ctx.fillText(String(n.priority), pxc, pyc+0.5);
+        ctx.font = '500 15px Arial, system-ui, sans-serif';
+      }
+      // case à cocher
+      if(n.check!=null){
+        const bx=n.x+7+(n._pW||0), by=n.y-7, s=14;
+        roundRectPath(ctx,bx,by,s,s,4);
+        ctx.fillStyle = n.check?"#22c55e":"#ffffff"; ctx.fill();
+        ctx.strokeStyle = n.check?"#22c55e":"#9aa0ab"; ctx.lineWidth=1.5; ctx.stroke();
+        if(n.check){
+          ctx.beginPath(); ctx.moveTo(bx+3,by+7); ctx.lineTo(bx+6,by+10.5); ctx.lineTo(bx+11,by+3.5);
+          ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke();
+        }
+      }
+      // texte (décalé si badges à gauche, barré si fait)
+      const leftPad = (n._pW||0) + (n._cbW||0);
+      const textCx = n.x + leftPad + (n.w - leftPad)/2;
+      ctx.fillStyle = n.check ? "#9aa0ab" : textColorFor(effL); ctx.font = '500 15px Arial, system-ui, sans-serif';
+      const startY = y0 + PAD_V + LINE/2;
+      n._lines.forEach((ln,i)=>{
+        const ty = startY + i*LINE;
+        ctx.fillText(ln, textCx, ty);
+        if(n.check){ const tw = ctx.measureText(ln).width; ctx.strokeStyle="#9aa0ab"; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(textCx-tw/2, ty); ctx.lineTo(textCx+tw/2, ty); ctx.stroke(); }
+      });
+      if(n.children.length){
+        const cx=n.x+n.w, cy=n.y;
+        ctx.beginPath(); ctx.arc(cx,cy,8,0,Math.PI*2);
+        ctx.fillStyle="#fff"; ctx.fill(); ctx.strokeStyle="#6b7280"; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx-4,cy); ctx.lineTo(cx+4,cy);
+        if(n.collapsed){ ctx.moveTo(cx,cy-4); ctx.lineTo(cx,cy+4); }
+        ctx.stroke();
+      }
+      if(n.link){
+        const lx=n.x+n.w, ly=y0;
+        ctx.beginPath(); ctx.arc(lx,ly,9,0,Math.PI*2);
+        ctx.fillStyle="#3b82f6"; ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(lx-3.2,ly+3.2); ctx.lineTo(lx+3.2,ly-3.2);
+        ctx.moveTo(lx+0.2,ly-3.4); ctx.lineTo(lx+3.4,ly-3.4); ctx.lineTo(lx+3.4,ly-0.2);
+        ctx.stroke();
+      }
+      // badge note
+      if(n.note && n.note.trim()){
+        const nx=n.x+n.w, ny=n.y+n.h/2;
+        ctx.beginPath(); ctx.arc(nx,ny,8,0,Math.PI*2);
+        ctx.fillStyle="#f59e0b"; ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.strokeStyle="#fff"; ctx.lineWidth=1.2;
+        [-2.4,0,2.4].forEach((dy,i)=>{ ctx.beginPath(); ctx.moveTo(nx-3,ny+dy); ctx.lineTo(nx+(i===2?1:3),ny+dy); ctx.stroke(); });
+      }
+      // badge avancement
+      const pg = taskProgress(n);
+      if(pg.total>0){
+        const label = pg.done+"/"+pg.total, allDone = pg.done===pg.total;
+        const pw = label.length*7+12, ph=16, px=n.x, py=y0-ph-3;
+        roundRectPath(ctx,px,py,pw,ph,8);
+        ctx.fillStyle = allDone?"#dcfce7":"#eef2f7"; ctx.fill();
+        ctx.strokeStyle = allDone?"#22c55e":"#c8ccd6"; ctx.lineWidth=1; ctx.stroke();
+        ctx.fillStyle = allDone?"#15803d":"#4b5563"; ctx.font='700 10px Arial, system-ui, sans-serif';
+        ctx.fillText(label, px+pw/2, py+ph/2);
+        ctx.font = '500 15px Arial, system-ui, sans-serif';
+      }
+      if(isTop || !n.collapsed) n.children.forEach(c=>nodes(c,false));
+    })(displayRoot(), true);
+    return { canvas: cv, w: W, h: H };
+  }
+  function docTitle(){ return (root.text||"mindmap").replace(/[^\p{L}\p{N}_-]+/gu,"_").slice(0,40) || "mindmap"; }
+  function download(blob, name){
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  }
+  function dataUrlToBlob(durl){
+    const [head,b64] = durl.split(",");
+    const mime = (head.match(/:(.*?);/)||[])[1] || "image/png";
+    const bin = atob(b64), arr = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    return new Blob([arr],{type:mime});
+  }
+  function canvasToBlob(cv){
+    return new Promise(res=>{
+      if(cv.toBlob){ cv.toBlob(b=> b ? res(b) : res(dataUrlToBlob(cv.toDataURL("image/png"))), "image/png"); }
+      else res(dataUrlToBlob(cv.toDataURL("image/png")));
+    });
+  }
+  async function exportPng(){
+    try{
+      const { canvas } = await mapToCanvas(2);
+      const blob = await canvasToBlob(canvas);
+      download(blob, docTitle()+".png");
+    }catch(e){ alert("Export PNG impossible : " + e.message); }
+  }
+  async function exportPdf(){
+    try{
+      const { canvas, w, h } = await mapToCanvas(2);
+      const dataUrl = canvas.toDataURL("image/png");
+      const landscape = w >= h;
+      let frame = document.getElementById("printFrame");
+      if(!frame){
+        frame = document.createElement("iframe");
+        frame.id = "printFrame";
+        frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+        document.body.appendChild(frame);
+      }
+      const doc = frame.contentWindow.document;
+      doc.open();
+      doc.write(`<!doctype html><html><head><title>${docTitle()}</title>
+        <style>@page{size:${landscape?"A4 landscape":"A4 portrait"};margin:10mm}
+        html,body{margin:0;height:100%}
+        body{display:flex;align-items:center;justify-content:center}
+        img{max-width:100%;max-height:100%}</style></head>
+        <body><img src="${dataUrl}"></body></html>`);
+      doc.close();
+      const img = doc.querySelector("img");
+      const go = ()=>{ try{ frame.contentWindow.focus(); frame.contentWindow.print(); }catch(_){} };
+      if(img.complete) setTimeout(go,200); else img.onload = ()=>setTimeout(go,200);
+    }catch(e){ alert("Export PDF impossible : " + e.message); }
+  }
+
+  // ---------- Sauvegarde sur vrai fichier (.ygmind) ----------
+  const mapFileHandles = new Map();   // mapId -> FileSystemFileHandle (session)
+  let fileDirty = false;              // la carte a-t-elle changé depuis la dernière sauvegarde fichier ?
+  const hasFSA = ()=> typeof window.showSaveFilePicker === "function";
+  function markDirty(){ fileDirty = true; updateSaveHint(); }
+  function updateSaveHint(){
+    const b = document.getElementById("btnSave");
+    if(!b) return;
+    const handled = mapFileHandles.has(currentMapId);
+    // • = modifs non enregistrées dans le fichier ; ✓ = à jour
+    b.textContent = "💾 " + (saveFailed ? "⚠️ Enregistrer" : (handled ? (fileDirty ? "Enregistrer •" : "Enregistré ✓") : "Enregistrer"));
+    b.title = handled
+      ? (fileDirty ? "Modifications non enregistrées dans le fichier (Cmd/Ctrl+S)" : "À jour dans le fichier")
+      : "Enregistrer cette carte dans un fichier .ygmind (Cmd/Ctrl+S)";
+  }
+  async function saveToFile(forceNew){
+    persistCurrent(); // localStorage d'abord (filet)
+    const json = JSON.stringify(serialize(), null, 2);
+    const suggested = docTitle() + ".ygmind";
+    if(!hasFSA()){ download(new Blob([json],{type:"application/json"}), suggested); fileDirty=false; updateSaveHint(); return; }
+    try{
+      let handle = forceNew ? null : mapFileHandles.get(currentMapId);
+      if(!handle){
+        handle = await window.showSaveFilePicker({
+          suggestedName: suggested,
+          types: [{ description:"Carte YGmind", accept:{ "application/json":[".ygmind",".json"] } }]
+        });
+        mapFileHandles.set(currentMapId, handle);
+      }
+      const w = await handle.createWritable();
+      await w.write(json); await w.close();
+      fileDirty = false; updateSaveHint();
+    }catch(e){
+      if(e && e.name === "AbortError") return; // l'utilisateur a annulé le sélecteur
+      // Repli : téléchargement, pour ne jamais bloquer une sauvegarde
+      download(new Blob([json],{type:"application/json"}), suggested); fileDirty=false; updateSaveHint();
+    }
+  }
+  async function openFromFile(){
+    if(!(typeof window.showOpenFilePicker === "function")){ fileInput.click(); return; }
+    try{
+      const [handle] = await window.showOpenFilePicker({
+        types: [{ description:"Cartes & imports", accept:{ "application/json":[".ygmind",".json",".xmind"], "text/html":[".html",".htm",".xhtml"] } }]
+      });
+      const file = await handle.getFile();
+      if(/\.xmind$/i.test(file.name)){ importXmindFile(file); return; }
+      if(/\.(html?|xhtml)$/i.test(file.name)){ importHtmlFile(file); return; } // pas de poignée mémorisée : Cmd+S ne réécrit pas la source HTML
+      const text = await file.text();
+      const doc = deserialize(JSON.parse(text));
+      persistCurrent();
+      const name = (file.name||"").replace(/\.ygmind$|\.json$/i, "") || doc.root.text || "Carte";
+      const id = createMapWithJson(name, JSON.stringify(serializeDoc(doc)), false);
+      if(id){ mapFileHandles.set(id, handle); switchToMap(id); } // poignée mémorisée → Cmd+S réécrit le fichier
+    }catch(e){ if(!(e && e.name==="AbortError")) alert("Ouverture impossible : " + e.message); }
+  }
+
+  // ---------- Save / Load JSON ----------
+  function saveJson(){ download(new Blob([JSON.stringify(serialize(),null,2)],{type:"application/json"}), docTitle()+".ygmind.json"); }
+
+  // Publier cette carte sur un lien web : génère map.json (données + deployId unique).
+  // À déposer à côté d'une copie de ce même index.html sur un hébergeur statique ; au premier
+  // chargement, tryImportPublishedSeed() importe automatiquement cette carte pour le visiteur.
+  function publishMap(){
+    persistCurrent();
+    const doc = serialize();
+    doc.deployId = currentMapId + "_" + Date.now();
+    download(new Blob([JSON.stringify(doc, null, 2)], {type:"application/json"}), "map.json");
+    alert(
+      "🌐 Publier cette carte sur un lien web (gratuit)\n\n" +
+      "« map.json » vient d'être téléchargé — il contient les données de cette carte (pas la clé API, jamais incluse).\n\n" +
+      "Étapes (GitHub Pages, gratuit) :\n" +
+      "1. Crée un dépôt GitHub (public).\n" +
+      "2. Dépose dedans une copie de ce fichier index.html + le map.json téléchargé.\n" +
+      "3. Réglages du dépôt → Pages → Deploy from branch → main / (root).\n" +
+      "4. Le lien (https://tonpseudo.github.io/tondepot/) affichera directement cette carte pour tout visiteur.\n\n" +
+      "Pour publier une nouvelle version : reclique 🌐 Publier et remplace map.json dans le dépôt."
+    );
+  }
+  function loadJson(file){
+    const fr = new FileReader();
+    fr.onload = ()=>{
+      try{
+        const doc = deserialize(JSON.parse(fr.result));
+        // Ouvrir un fichier = nouvelle carte dans la bibliothèque (n'écrase jamais la carte ouverte)
+        persistCurrent();
+        const name = (file.name||"").replace(/\.ygmind\.json$|\.json$/i, "") || doc.root.text || "Carte importée";
+        const id = createMapWithJson(name, JSON.stringify(serializeDoc(doc)), false); // nom figé (fichier)
+        if(id) switchToMap(id);
+      }
+      catch(e){ alert("Fichier invalide."); }
+    };
+    fr.readAsText(file);
+  }
+  // Ré-encode un doc désérialisé (structure interne) en JSON de stockage, sans passer par les globals.
+  function serializeDoc(doc){ return withDoc(doc.root, doc.images, doc.stickies, ()=>serialize()); }
+
+  // ---------- Toolbar wiring ----------
+  const swWrap = document.getElementById("swatches");
+  const swatchEls = [];
+  PALETTE.forEach(col=>{
+    const s = document.createElement("div");
+    s.className = "swatch"; s.style.background = col; s.dataset.color = col;
+    s.title = "Appliquer au nœud sélectionné";
+    s.addEventListener("click", ()=>{ setColorSel(col); }); // marche pour 1 ou N nœuds
+    swWrap.appendChild(s);
+    swatchEls.push(s);
+  });
+  // Met en surbrillance la pastille correspondant à la couleur du nœud sélectionné.
+  function updateSwatchActive(){
+    const { node } = (selectedId && find(selectedId)) || {};
+    const cur = node ? (node.color||"").toLowerCase() : null;
+    swatchEls.forEach(s=> s.classList.toggle("active", cur === s.dataset.color.toLowerCase()));
+  }
+  document.getElementById("btnChild").onclick = ()=>addChild(selectedId||root.id);
+  document.getElementById("btnSibling").onclick = ()=>addSibling(selectedId||root.id);
+  document.getElementById("btnDelete").onclick = ()=>deleteSelection();
+  document.getElementById("btnLink").onclick = ()=>{ if(selectedId) setLink(selectedId); };
+  document.getElementById("btnSticky").onclick = ()=>{ const c = viewCenterWorld(); addSticky(c.x, c.y); };
+  const imgInput = document.getElementById("imgInput");
+  document.getElementById("btnImage").onclick = ()=> imgInput.click();
+  imgInput.onchange = ()=>{
+    const f = imgInput.files[0];
+    if(f){ const c = viewCenterWorld(); addImageAt(f, c.x, c.y); }
+    imgInput.value = "";
+  };
+  document.getElementById("btnUndo").onclick = undo;
+  document.getElementById("btnRedo").onclick = redo;
+  document.getElementById("btnFit").onclick = fit;
+  document.getElementById("btnFocus").onclick = ()=>{ if(selectedId && selectedId!==root.id) setFocus(selectedId); };
+  document.getElementById("breadcrumb").addEventListener("click", (e)=>{
+    const exit = e.target.closest("[data-bcexit]");
+    if(exit){ clearFocus(); return; }
+    const item = e.target.closest("[data-bcfocus]");
+    if(item){ const id = item.getAttribute("data-bcfocus"); if(id===root.id) clearFocus(); else setFocus(id); }
+  });
+  document.getElementById("btnCollapseAll").onclick = ()=>{
+    pushHistory();
+    root.children.forEach(function c(n){ if(n.children.length) n.collapsed=true; n.children.forEach(c); });
+    render();
+  };
+  document.getElementById("btnPng").onclick = exportPng;
+  document.getElementById("btnPdf").onclick = exportPdf;
+  document.getElementById("btnMdImport").onclick = openModal;
+  document.getElementById("btnMdExport").onclick = exportMarkdown;
+  document.getElementById("btnSave").onclick = ()=>saveToFile(false); // enregistrer dans le fichier
+  document.getElementById("btnNew").onclick = ()=>newMap();
+  document.getElementById("btnHome").onclick = ()=>openHome();
+  document.getElementById("homeNew").onclick = ()=>newMap();
+  document.getElementById("homeClose").onclick = ()=>closeHome();
+  const fileInput = document.getElementById("fileInput");
+  document.getElementById("homeImport").onclick = ()=>openFromFile();
+  document.getElementById("btnLoad").onclick = ()=>openFromFile();
+  document.getElementById("btnPublish").onclick = publishMap;
+  fileInput.onchange = ()=>{
+    const f = fileInput.files[0];
+    if(f){ if(/\.xmind$/i.test(f.name)) importXmindFile(f); else if(/\.(html?|xhtml)$/i.test(f.name)) importHtmlFile(f); else loadJson(f); }
+    fileInput.value="";
+  };
+  document.getElementById("zIn").onclick = ()=>zoomBy(1.2);
+  document.getElementById("zOut").onclick = ()=>zoomBy(1/1.2);
+  document.getElementById("hintClose").onclick = ()=>document.getElementById("hint").style.display="none";
+  document.getElementById("btnTheme").onclick = ()=>{
+    theme = theme==="dark" ? "light" : "dark";
+    try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+    applyTheme();
+    render(); // recalcule les couleurs de texte / pastilles selon le thème
+  };
+  window.addEventListener("resize", ()=>applyView());
+  // Filet de fermeture : purge le debounce et écrit maintenant ; avertit si la sauvegarde a échoué (quota).
+  window.addEventListener("beforeunload", (e)=>{
+    flushSave();
+    if(saveFailed){ e.preventDefault(); e.returnValue = ""; return ""; }
+  });
+
+  // ---------- Boot ----------
+  applyTheme();
+  load();
+  selSet(root.id);
+  render();
+  fit();
+  updateSaveHint();   // état initial du bouton d'enregistrement
+  // Re-ajuste une fois la mise en page du navigateur stabilisée (évite un mauvais zoom au 1er rendu).
+  requestAnimationFrame(fit);
+  window.addEventListener("load", ()=>fit(), { once:true });
+
+})();
+</script>
+</body>
+</html>

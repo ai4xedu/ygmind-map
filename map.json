@@ -1,0 +1,1157 @@
+{
+  "v": 1,
+  "root": {
+    "text": "Ai4x Bootcamp",
+    "color": "#dbeafe",
+    "link": "",
+    "note": "",
+    "check": null,
+    "priority": null,
+    "collapsed": false,
+    "children": [
+      {
+        "text": "Live 0 : Onboarding",
+        "color": "#dbeafe",
+        "link": "",
+        "note": "",
+        "check": null,
+        "priority": null,
+        "collapsed": false,
+        "children": [
+          {
+            "text": "Préparer Questionnaire au\nniveau de\nLearn.ai4x.academy",
+            "color": "#dbeafe",
+            "link": "",
+            "note": "",
+            "check": null,
+            "priority": null,
+            "collapsed": false,
+            "children": [
+              {
+                "text": "1-BIO",
+                "color": "#dbeafe",
+                "link": "",
+                "note": "",
+                "check": null,
+                "priority": null,
+                "collapsed": false,
+                "children": [
+                  {
+                    "text": "Questions",
+                    "color": "#dbeafe",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "Organisation",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Exp : Ai4X SARL",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Rôles",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Exp : Head of Maketing/Sales",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Périmètre des responsabilités\nprofessionnel",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "text": "Livrable concerné",
+                    "color": "#ffe4e6",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "Instructions personnalisés",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      },
+                      {
+                        "text": "About me Folder",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "text": "Séances concernées",
+                    "color": "#dcfce7",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "1- Prompting",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "2- Introduction à Claude",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "text": "2-Contexte professionnel",
+                "color": "#dbeafe",
+                "link": "",
+                "note": "",
+                "check": null,
+                "priority": null,
+                "collapsed": false,
+                "children": [
+                  {
+                    "text": "Modules",
+                    "color": "#dbeafe",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "Challenges actuels",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Mesurer le ROI de mes\ncampagnes",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          },
+                          {
+                            "text": "Livrable concerné",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "Capstone Project",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Séance concernée",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "2- Introduction à Claude",
+                                "color": "#dcfce7",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Dossier de travail",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Questions",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": true,
+                            "children": []
+                          },
+                          {
+                            "text": "Livrable concerné",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "Connecté son dossier de\ntravail local\nà Google Drive",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              },
+                              {
+                                "text": "Connecter ses dossiers\nprincipaux à des projets\nsur Claude Cowork",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              },
+                              {
+                                "text": "Configurer le cerveau de\nchaque dossier - Claude.MD",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Séance concernée",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": true,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Tâches routinières",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Réponses",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": true,
+                            "children": []
+                          },
+                          {
+                            "text": "Livrable concerné",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "Matrice de priorisation\nde use cases",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              },
+                              {
+                                "text": "Répartition entre :\nSkills/Plugins , Workflows\nautomatisés et Agents IA",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Séance concernée",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "3- Plugins & Skills",
+                                "color": "#dcfce7",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              },
+                              {
+                                "text": "6- Claude Code",
+                                "color": "#dcfce7",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Contraintes de confidentialité\nde données",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Livrable concerné",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "Recommandations\npersonnalisées",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Séance concernée",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "Toutes",
+                                "color": "#dcfce7",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Roi attendu",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Voilà comment je veux. que\ncette formation\nchange ma vie\nprofessionnelle",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          },
+                          {
+                            "text": "Livrable concernée",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "Promesse réaliste",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Séance concernée",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "Toutes",
+                                "color": "#dcfce7",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Vos processus sont-ils\ndocumentés?",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Livrable concerné",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "Matrice de priorisation\nde use cases",
+                                "color": "#ffe4e6",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "text": "3- Outillage SAAS/IA",
+                "color": "#dbeafe",
+                "link": "",
+                "note": "",
+                "check": null,
+                "priority": null,
+                "collapsed": false,
+                "children": [
+                  {
+                    "text": "Stack IA actuel",
+                    "color": "#dbeafe",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "Claude",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Entre 200 et 300$",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "ElevenLabs",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "10$/mois",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Gemini",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "5$/mois",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Veed",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "10$/mois",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          },
+                          {
+                            "text": "Sous-titrage",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Livrable concerné",
+                        "color": "#ffe4e6",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Remplacement potentiel des\nSAAS IA par Claude Code",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Séance concernée",
+                        "color": "#dcfce7",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "6- Claude code",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "Niveau de maturité IA",
+                    "color": "#dbeafe",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "Avancé",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      },
+                      {
+                        "text": "Action",
+                        "color": "#fef9c3",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Passer le Quiz IA for pros",
+                            "color": "#fef9c3",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Séances concernées",
+                        "color": "#dcfce7",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Toutes",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Livrable concerné",
+                        "color": "#ffe4e6",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Recommandations\npersonnalisées au cours de la\nformation",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "Applications utilisées/Coûts",
+                    "color": "#dbeafe",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "Tools",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Gmail",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          },
+                          {
+                            "text": "Google Drive",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          },
+                          {
+                            "text": "Slack",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "30$/mois",
+                                "color": "#dbeafe",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Brevo",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "50$/mois",
+                                "color": "#dbeafe",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Canva",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "15$/mois",
+                                "color": "#dbeafe",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Xmind",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "5$/mois",
+                                "color": "#dbeafe",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "text": "Odoo",
+                            "color": "#dbeafe",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": [
+                              {
+                                "text": "16$/mois",
+                                "color": "#dbeafe",
+                                "link": "",
+                                "note": "",
+                                "check": null,
+                                "priority": null,
+                                "collapsed": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Livrable concerné",
+                        "color": "#ffe4e6",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "Feuille de route\nClaude code\npersonnalisée",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          },
+                          {
+                            "text": "Connecteurs à activer",
+                            "color": "#ffe4e6",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Séances concernées",
+                        "color": "#dcfce7",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": [
+                          {
+                            "text": "6- Claude code",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          },
+                          {
+                            "text": "2- Interface de Claude",
+                            "color": "#dcfce7",
+                            "link": "",
+                            "note": "",
+                            "check": null,
+                            "priority": null,
+                            "collapsed": false,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "text": "Présence digitale",
+                "color": "#dbeafe",
+                "link": "",
+                "note": "",
+                "check": null,
+                "priority": null,
+                "collapsed": false,
+                "children": [
+                  {
+                    "text": "Questions",
+                    "color": "#dbeafe",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "Avez-vous besoin d'un site\nweb?",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      },
+                      {
+                        "text": "Avez-vous besoin de travailler\nsur vos RS\n( y compris votre Linkedin\npersonnel)",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      },
+                      {
+                        "text": "Votre entreprise a-t-elle une\ncharte graphique?",
+                        "color": "#dbeafe",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "text": "Livrable concerné",
+                    "color": "#ffe4e6",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "Charte graphique / System\ndesign",
+                        "color": "#ffe4e6",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      },
+                      {
+                        "text": "RS",
+                        "color": "#ffe4e6",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      },
+                      {
+                        "text": "Website",
+                        "color": "#ffe4e6",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "text": "Séance concernée",
+                    "color": "#dcfce7",
+                    "link": "",
+                    "note": "",
+                    "check": null,
+                    "priority": null,
+                    "collapsed": false,
+                    "children": [
+                      {
+                        "text": "5- Claude Design",
+                        "color": "#dcfce7",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      },
+                      {
+                        "text": "6- Claude code",
+                        "color": "#dcfce7",
+                        "link": "",
+                        "note": "",
+                        "check": null,
+                        "priority": null,
+                        "collapsed": false,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "images": [
+    {
+      "src": "data:image/jpeg;base64,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",
+      "x": 1788.0,
+      "y": -240.0,
+      "w": 606.0,
+      "h": 275.0
+    }
+  ],
+  "stickies": [],
+  "deployId": "ai4x-bootcamp-1"
+}
