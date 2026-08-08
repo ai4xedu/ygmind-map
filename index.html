@@ -3,17 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tabtree — Démo</title>
+<title>TabTree — Démo</title>
 <meta name="robots" content="noindex">
-<!-- Le favicon est inline (data-URI) pour que le fichier reste autonome.
-     Le manifeste et l'icone iOS pointent vers logo/ : servis a cote de l'app ils fonctionnent,
-     ouvert seul en file:// ils echouent en silence, sans consequence visible. -->
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="logo/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="Tabtree">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1f2b">
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20x%3D%222%22%20y%3D%223.5%22%20width%3D%2228%22%20height%3D%2226.5%22%20rx%3D%228.5%22%20fill%3D%22%232563c9%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2228%22%20height%3D%2226%22%20rx%3D%228%22%20fill%3D%22%233b82f6%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M10.6%2010.8H21.4%22%2F%3E%3Cpath%20d%3D%22M16%2010.8V20%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23fff%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2210.8%22%20r%3D%222.5%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2210.8%22%20r%3D%222.5%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2220.6%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cg fill='none' stroke='%233b82f6' stroke-width='40' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='52' y='176' width='176' height='160' rx='34'/%3E%3Cpath d='M110 256 H164'/%3E%3Cpath d='M148 238 L166 256 L148 274'/%3E%3Cpath d='M228 256 C 300 256, 316 126, 372 126'/%3E%3Cpath d='M228 256 H 386'/%3E%3Cpath d='M228 256 C 300 256, 316 386, 372 386'/%3E%3C/g%3E%3Cg fill='%233b82f6'%3E%3Ccircle cx='408' cy='126' r='44'/%3E%3Ccircle cx='420' cy='256' r='44'/%3E%3Ccircle cx='408' cy='386' r='44'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#f3f5f8; --panel:#ffffff; --ink:#1c2230; --muted:#69718a;
@@ -46,12 +38,29 @@
     border-bottom:1px solid var(--border);
     box-shadow:var(--shadow-1); flex-wrap:nowrap; overflow-x:auto; scrollbar-width:thin;
   }
-  #toolbar .brand{font-weight:800; letter-spacing:.2px; margin-right:10px; white-space:nowrap; font-size:15px}
+  /* Marque : la touche Tab dont la flèche ne s'arrête pas au bord — elle se ramifie.
+     C'est le geste que l'appli enseigne (Tab = enfant), pas une illustration décorative. */
+  #toolbar .brand{display:flex; align-items:center; gap:8px; margin-right:12px; white-space:nowrap;
+    font-weight:800; letter-spacing:.2px; font-size:15px; cursor:default; user-select:none}
   #toolbar .brand span{color:var(--accent)}
-  /* Le signe hérite de la couleur d'accent via la règle ci-dessus (c'est un span).
-     Pas de flex sur .brand : le gap séparerait aussi « Tab » de « tree ». */
-  #toolbar .brand .mark{display:inline-block; width:19px; height:19px; vertical-align:-4px; margin-right:7px}
-  #toolbar .brand .mark svg{display:block; width:100%; height:100%}
+  #toolbar .brand svg{width:26px; height:26px; flex:none; overflow:visible}
+  #toolbar .brand .bk{stroke:var(--ink)}
+  #toolbar .brand .bb, #toolbar .brand .bn{stroke:var(--accent); fill:none}
+  #toolbar .brand .bn{fill:var(--accent); stroke:none}
+  /* La petite touche : au survol, l'arbre POUSSE — le trait se déroule depuis la touche,
+     puis les nœuds éclosent. Le logo fait ce que le tour guidé demande à l'étape 2. */
+  #toolbar .brand .bb{stroke-dasharray:250; stroke-dashoffset:0}
+  #toolbar .brand:hover .bb{animation:brandGrow 1.1s ease-out}
+  #toolbar .brand:hover .bn{animation:brandPop .45s cubic-bezier(.34,1.56,.64,1) backwards}
+  #toolbar .brand:hover .bn1{animation-delay:.5s}
+  #toolbar .brand:hover .bn2{animation-delay:.62s}
+  #toolbar .brand:hover .bn3{animation-delay:.74s}
+  @keyframes brandGrow{from{stroke-dashoffset:250}to{stroke-dashoffset:0}}
+  @keyframes brandPop{from{opacity:0; transform:scale(.2)}to{opacity:1; transform:scale(1)}}
+  #toolbar .brand .bn{transform-origin:center; transform-box:fill-box}
+  @media (prefers-reduced-motion: reduce){
+    #toolbar .brand:hover .bb, #toolbar .brand:hover .bn{animation:none}
+  }
   .sep{width:1px; height:22px; background:var(--border); margin:0 5px; flex:none}
   button.tb{
     display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 10px;
@@ -250,7 +259,72 @@
   .aigen-tree{margin:0; padding-left:20px; font-size:13px; color:var(--ink); line-height:1.7}
   .aigen-tree li{margin:2px 0}
   /* Réglages (clé API) — un panneau, pas un prompt() du navigateur */
-  #setModal{position:fixed; inset:0; z-index:46; display:none; align-items:center; justify-content:center;
+  /* ----- Sélecteur de modèles ----- */
+  #tplModal{position:fixed; inset:0; z-index:49; display:none; align-items:center; justify-content:center;
+    background:rgba(15,23,42,.55); backdrop-filter:blur(3px)}
+  #tplModal.open{display:flex}
+  #tplModal .tbox{width:min(1080px,94vw); max-height:90vh; display:flex; flex-direction:column; gap:14px;
+    background:var(--panel); border-radius:16px; box-shadow:0 24px 70px rgba(0,0,0,.35); padding:20px}
+  #tplModal .thead{display:flex; align-items:flex-start; gap:12px}
+  #tplModal .thead>div{flex:1}
+  #tplModal h3{margin:0 0 4px; font-size:17px}
+  #tplModal p{margin:0; font-size:12.5px; color:var(--muted); line-height:1.5}
+  #tplModal .tctx{display:flex; flex-direction:column; gap:6px; background:var(--hover);
+    border-radius:10px; padding:10px 12px}
+  #tplModal .tctx label{font-size:12.5px; font-weight:650; color:var(--ink)}
+  #tplModal .tctx label span{font-weight:400; color:var(--muted)}
+  #tplModal .tctx input{border:1px solid var(--border); border-radius:8px; padding:8px 10px;
+    font:inherit; font-size:13px; background:var(--bg); color:var(--ink)}
+  #tplModal .tctx input:focus{border-color:var(--accent); outline:none}
+  #tplModal .tctx-help{font-size:11.5px}
+  #tplModal .tgrid{display:grid; gap:14px; overflow-y:auto; padding:2px;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  #tplModal .tcard{border:1px solid var(--border); border-radius:12px; background:var(--bg);
+    padding:10px; display:flex; flex-direction:column; gap:8px; cursor:pointer; text-align:left;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease}
+  #tplModal .tcard:hover{transform:translateY(-3px); border-color:var(--accent);
+    box-shadow:0 12px 26px rgba(0,0,0,.16)}
+  #tplModal .tcard .tprev{height:132px; border-radius:8px; background:var(--hover);
+    display:flex; align-items:center; justify-content:center; overflow:hidden}
+  #tplModal .tcard .tprev svg{width:100%; height:100%}
+  #tplModal .tcard .tname{font-size:13.5px; font-weight:700; color:var(--ink)}
+  #tplModal .tcard .tdesc{font-size:11.5px; color:var(--muted); line-height:1.45}
+  #tplModal .tcard .tmode{font-size:10.5px; font-weight:700; color:var(--muted);
+    background:var(--hover); border-radius:20px; padding:2px 8px; align-self:flex-start}
+  /* L'arrivée des branches : la carte se dessine au lieu de surgir d'un bloc. */
+  @keyframes tplPop{from{opacity:0; transform:scale(.97)} to{opacity:1; transform:scale(1)}}
+  #vp.tpl-enter g.node, #vp.tpl-enter path.edge, #vp.tpl-enter g.sticky, #vp.tpl-enter g.shape{
+    animation:tplPop .38s cubic-bezier(.2,.8,.3,1) backwards}
+  @media (prefers-reduced-motion:reduce){ #vp.tpl-enter g.node, #vp.tpl-enter path.edge,
+    #vp.tpl-enter g.sticky, #vp.tpl-enter g.shape{animation:none} }
+  #imgModal{position:fixed; inset:0; z-index:47; display:none; align-items:center; justify-content:center;
+    background:rgba(15,23,42,.45)}
+  #imgModal.open{display:flex}
+  #imgModal .mbox{width:min(560px,92vw); max-height:88vh; overflow-y:auto; background:var(--panel);
+    border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.3); padding:18px; display:flex; flex-direction:column; gap:12px}
+  #imgModal h3{margin:0; font-size:16px}
+  #imgModal p{margin:0; font-size:12.5px; color:var(--muted); line-height:1.55}
+  #imgModal textarea{border:1px solid var(--border); border-radius:10px; padding:10px 12px; font:inherit;
+    font-size:13px; background:var(--bg); color:var(--ink); resize:vertical}
+  #imgModal textarea:focus{border-color:var(--accent); outline:none}
+  #imgModal .img-row{display:flex; align-items:center; gap:8px}
+  #imgModal .img-row label{font-size:12.5px; font-weight:650; color:var(--ink)}
+  #imgModal select{border:1px solid var(--border); border-radius:8px; padding:6px 8px; font:inherit;
+    font-size:12.5px; background:var(--bg); color:var(--ink)}
+  /* pre-line : un échec liste un essai par ligne, il ne doit pas être aplati en un pavé */
+  #imgModal .img-state{font-size:12.5px; color:var(--muted); background:var(--hover);
+    border-radius:8px; padding:8px 10px; white-space:pre-line; user-select:text;
+    max-height:20vh; overflow-y:auto}
+  #imgModal .img-state.err{color:#b91c1c; background:#fee2e2}
+  #imgModal .img-preview{display:flex; justify-content:center; background:var(--hover); border-radius:10px; padding:8px}
+  /* display:flex/block ci-dessus bat la règle [hidden] du navigateur : on le redit explicitement,
+     sinon la zone d'aperçu reste affichée (avec une icône d'image cassée) après une erreur. */
+  #imgModal [hidden]{display:none}
+  #imgModal .img-preview img{max-width:100%; max-height:42vh; border-radius:6px; display:block}
+  #imgModal .mrow{display:flex; justify-content:flex-end; gap:8px; align-items:center}
+  #imgModal .spacer{flex:1}
+  /* 48 : au-dessus du panneau 🖼 Générer (47), qui peut appeler les réglages par-dessus lui */
+  #setModal{position:fixed; inset:0; z-index:48; display:none; align-items:center; justify-content:center;
     background:rgba(20,24,34,.38)}
   #setModal.open{display:flex}
   #setModal .mbox{width:min(520px,92vw); background:var(--panel); border-radius:14px;
@@ -261,7 +335,9 @@
   #setModal input{border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-family:ui-monospace,monospace;
     font-size:13px; outline:none; color:var(--ink); background:var(--bg); width:100%}
   #setModal input:focus{border-color:var(--accent)}
-  #setModal .set-state{font-size:12.5px; color:var(--muted); background:var(--hover);
+  /* pre-line : le test de clé répond en plusieurs lignes, elles ne doivent pas être aplaties */
+  #setModal .set-state{white-space:pre-line; user-select:text; max-height:34vh; overflow-y:auto;
+    font-size:12.5px; color:var(--muted); background:var(--hover);
     border-radius:9px; padding:8px 10px}
   #setModal .set-state.ok{color:var(--ink)}
   #setModal .mrow{display:flex; justify-content:flex-end; gap:8px; align-items:center}
@@ -388,7 +464,23 @@
 </head>
 <body>
   <div id="toolbar">
-    <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M8.5 11H23.5"/><path d="M16 11V24"/></g><g fill="currentColor"><circle cx="7.6" cy="11" r="3.2"/><circle cx="24.4" cy="11" r="3.2"/><circle cx="16" cy="24.8" r="3.2"/></g></svg></span>Tab<span>tree</span></div>
+    <div class="brand" title="TabTree — une touche, un arbre">
+      <svg viewBox="0 0 512 512" role="img" aria-label="TabTree">
+        <g class="bk" fill="none" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="52" y="176" width="176" height="160" rx="32"/>
+          <path d="M100 256 H160"/><path d="M142 232 L166 256 L142 280"/>
+        </g>
+        <g class="bb" stroke-width="26" stroke-linecap="round">
+          <path d="M228 256 C 300 256, 316 122, 376 122"/>
+          <path d="M228 256 H 392"/>
+          <path d="M228 256 C 300 256, 316 390, 376 390"/>
+        </g>
+        <circle class="bn bn1" cx="412" cy="122" r="36"/>
+        <circle class="bn bn2" cx="428" cy="256" r="36"/>
+        <circle class="bn bn3" cx="412" cy="390" r="36"/>
+      </svg>
+      <div>Tab<span>Tree</span></div>
+    </div>
     <button class="tb" id="btnHome" title="Mes cartes (bibliothèque)">🗂 Cartes</button>
     <button class="tb" id="btnPalette" title="Toutes les commandes (Cmd/Ctrl+K)">⌘K Commandes</button>
     <div class="sep"></div>
@@ -410,6 +502,7 @@
     <button class="tb" id="btnDelete" title="Supprimer (Suppr)">🗑 Supprimer</button>
     <button class="tb mm-only" id="btnLink" title="Ajouter / modifier un lien URL">🔗 Lien</button>
     <button class="tb" id="btnImage" title="Ajouter une image (ou colle avec Cmd/Ctrl+V, ou glisse un fichier sur la carte)">📷 Image</button>
+    <button class="tb primary" id="btnImgGen" title="Générer une vraie image avec l'IA (Google Gemini) et la poser sur la carte">🖼 Générer une image</button>
     <button class="tb" id="btnSticky" title="Ajouter un post-it libre sur la carte">🗒 Post-it</button>
     <input type="file" id="imgInput" accept="image/*" style="display:none">
     <div class="sep"></div>
@@ -422,17 +515,18 @@
     <button class="tb mm-only" id="btnCollapseAll">⊟ Tout replier</button>
     <div class="sep mm-only"></div>
     <button class="tb mm-only" id="btnExpand" title="Développer le nœud sélectionné avec l'IA (Claude)">✨ Développer</button>
-    <button class="tb mm-only" id="btnPicto" title="Dessiner un pictogramme pour le nœud sélectionné (Claude)">🎨 Picto</button>
-    <button class="tb mm-only" id="btnAiKey" title="Configurer la clé API Claude (stockée localement)">⚙︎</button>
+    <button class="tb mm-only" id="btnPicto" title="Petite icône au trait (SVG) dans le nœud — ce N'EST PAS une image générée : pour ça, voir 🖼 Générer une image">🎨 Picto SVG</button>
+    <button class="tb" id="btnAiKey" title="Configurer les clés API Claude et Google (stockées localement)">⚙︎</button>
     <div class="sep"></div>
     <button class="tb" id="btnPng">🖼 PNG</button>
     <button class="tb" id="btnPdf">📄 PDF</button>
     <button class="tb mm-only" id="btnMdImport" title="Importer une liste / du Markdown">📥 Markdown</button>
     <button class="tb mm-only" id="btnMdExport" title="Exporter en Markdown">📝 .md</button>
     <button class="tb" id="btnSave" title="Enregistrer dans un fichier .tabtree (Cmd/Ctrl+S)">💾 Enregistrer</button>
-    <button class="tb" id="btnLoad" title="Ouvrir un fichier .json (Tabtree) ou .xmind (import XMind)">📂 Ouvrir</button>
+    <button class="tb" id="btnLoad" title="Ouvrir une carte (.tabtree, .ygmind) ou importer un .xmind">📂 Ouvrir</button>
     <button class="tb" id="btnPublish" title="Générer les fichiers pour publier cette carte sur un lien web (GitHub Pages, Netlify…)">🌐 Publier</button>
     <button class="tb" id="btnNew" title="Créer une nouvelle carte">✦ Nouvelle carte</button>
+    <button class="tb primary" id="btnTpl" title="Partir d'un modèle : OKR, PV de réunion, Vision Board, organigramme…">✨ Modèles</button>
     <div class="sep"></div>
     <button class="tb" id="btnTheme" title="Basculer thème clair / sombre">🌙</button>
     <input type="file" id="fileInput" accept="application/json,.json,.tabtree,.ygmind,.xmind,text/html,.html,.htm,.xhtml" style="display:none">
@@ -450,7 +544,7 @@
 
   <div id="home">
     <div class="home-head">
-      <div class="home-title">Tab<span>tree</span> · Mes cartes</div>
+      <div class="home-title">YG<span>mind</span> · Mes cartes</div>
       <div class="bk-stat" id="bkStat"></div>
       <div class="home-actions">
         <button class="tb primary" id="homeNew">＋ Nouvelle carte</button>
@@ -533,21 +627,82 @@
     <div class="mbox">
       <h3>⚙︎ Réglages — IA (facultatif)</h3>
       <p>
-        Tabtree marche entièrement <b>sans IA</b>. Pour activer 🤖 Copilote, 🤖 Organiser et
+        TabTree marche entièrement <b>sans IA</b>. Pour activer 🤖 Copilote, 🤖 Organiser et
         ✨ Développer, colle ta clé API Claude. Elle est enregistrée <b>sur cet appareil</b>
         (stockage local du navigateur), n'est envoyée qu'à <code>api.anthropic.com</code> et
         n'est <b>jamais</b> incluse dans un export <code>.tabtree</code>, <code>.json</code> ou <code>.md</code>.
       </p>
       <div class="set-state" id="setState"></div>
-      <label for="setKey">Clé API Claude</label>
+      <label for="setKey">Clé API Claude — texte (Copilote, Organiser, Développer)</label>
       <input type="password" id="setKey" spellcheck="false" autocomplete="off" placeholder="sk-ant-…">
       <p>Une clé se crée sur <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Modèle utilisé : <b id="setModel"></b>.</p>
+      <div class="set-state" id="setImgState"></div>
+      <label for="setImgKey">Clé API Google — images (🖼 Générer)</label>
+      <input type="password" id="setImgKey" spellcheck="false" autocomplete="off" placeholder="AIza…">
+      <div class="mrow"><button class="tb" id="setImgTest">🔍 Tester cette clé</button></div>
+      <p>
+        Claude ne génère pas d'images : cette fonction-là passe par Google. Clé à créer sur
+        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com</a> —
+        stockée sur cet appareil, envoyée uniquement à <code>generativelanguage.googleapis.com</code>,
+        jamais incluse dans un export. Modèle utilisé : <b id="setImgModel"></b>.
+      </p>
       <div class="mrow">
-        <button class="tb" id="setClear" hidden>🗑 Retirer la clé</button>
+        <button class="tb" id="setClear" hidden>🗑 Retirer les clés</button>
         <span class="spacer"></span>
         <button class="tb" id="setCancel">Annuler</button>
         <button class="tb primary" id="setSave">Enregistrer</button>
       </div>
+    </div>
+  </div>
+
+  <div id="imgModal">
+    <div class="mbox">
+      <h3>🖼 Générer une image</h3>
+      <p>
+        Décris l'image voulue. Elle est produite par <b>Google Gemini</b> et
+        <b>réduite avant d'être stockée</b> (comme toute image de TabTree).
+        Rien n'est ajouté à la carte tant que tu n'as pas cliqué « Insérer ».
+      </p>
+      <textarea id="imgPrompt" rows="3" spellcheck="false"
+        placeholder="une montgolfière au-dessus d'un désert au lever du soleil, style aquarelle"></textarea>
+      <div class="img-row">
+        <label for="imgRatio">Format</label>
+        <select id="imgRatio">
+          <option value="1:1">Carré (1:1)</option>
+          <option value="16:9">Paysage (16:9)</option>
+          <option value="9:16">Portrait (9:16)</option>
+          <option value="4:3">4:3</option>
+        </select>
+        <span class="spacer"></span>
+        <button class="tb primary" id="imgRun">✨ Générer</button>
+      </div>
+      <div class="img-state" id="imgState" hidden></div>
+      <div class="img-preview" id="imgPreview" hidden><img id="imgPreviewEl" alt="Aperçu de l'image générée"></div>
+      <div class="mrow">
+        <span class="spacer"></span>
+        <button class="tb" id="imgCancel">Annuler</button>
+        <button class="tb primary" id="imgInsert" disabled>Insérer dans la carte</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tplModal">
+    <div class="tbox">
+      <div class="thead">
+        <div>
+          <h3>✨ Partir d'un modèle</h3>
+          <p>Chaque aperçu est rendu par le moteur de l'application : c'est exactement ce que tu obtiendras.</p>
+        </div>
+        <button class="tb" id="tplClose" title="Fermer">✕</button>
+      </div>
+      <div class="tctx">
+        <label for="tplContext">Ton contexte <span>(facultatif)</span></label>
+        <input type="text" id="tplContext" spellcheck="false"
+          placeholder="ex : Ai4X, agence IA de 12 personnes, cible PME industrielles">
+        <p class="tctx-help">Si tu remplis ce champ, l'IA réécrit les intitulés du modèle à ton contexte
+          après l'ouverture (⌘Z annule tout d'un coup). Laisse vide pour le modèle brut.</p>
+      </div>
+      <div class="tgrid" id="tplGrid"></div>
     </div>
   </div>
 
@@ -630,7 +785,10 @@
   }
   // Couleur de texte lisible sur un fond donné (contraste automatique).
   function textColorFor(hex){
-    const m = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})/.exec(hex||"");
+    // L'alternative 6 caractères DOIT être testée en premier : une regex non ancrée essaie
+    // les alternatives dans l'ordre, donc « {3}|{6} » réduisait #c5e1a5 à « c5e » → #cc55ee,
+    // et la luminance était calculée sur une couleur sans rapport (texte blanc sur pastel).
+    const m = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-fA-F])/.exec(hex||"");
     if(!m) return theme==="dark" ? "#e8ebf2" : "#1c2230";
     let c = m[1]; if(c.length===3) c = c.split("").map(x=>x+x).join("");
     const r=parseInt(c.slice(0,2),16), g=parseInt(c.slice(2,4),16), b=parseInt(c.slice(4,6),16);
@@ -1310,7 +1468,7 @@
   function quotaAlert(){
     if(quotaWarned) return;
     quotaWarned = true;
-    alert("⚠️ SAUVEGARDE IMPOSSIBLE — le stockage du navigateur est plein (souvent des images trop lourdes).\n\nTon travail récent N'EST PAS sauvegardé. Fais tout de suite Cmd/Ctrl+S pour enregistrer cette carte dans un fichier .tabtree sur ton disque, puis allège ou supprime des images.");
+    alert("⚠️ SAUVEGARDE IMPOSSIBLE — le stockage du navigateur est plein (souvent des images trop lourdes).\n\nTon travail récent N'EST PAS sauvegardé. Fais tout de suite Cmd/Ctrl+S pour enregistrer cette carte dans un fichier .ygmind sur ton disque, puis allège ou supprime des images.");
   }
   function saveMapsIndex(){
     const json = JSON.stringify({ v:1, currentId: currentMapId, maps: mapsMeta, folders: foldersMeta });
@@ -1562,7 +1720,7 @@
     if(currentFolderId && !foldersMeta.some(f=>f.id===currentFolderId)) currentFolderId = null;
     const curFolder = currentFolderId ? foldersMeta.find(f=>f.id===currentFolderId) : null;
     const titleEl = document.querySelector("#home .home-title");
-    if(titleEl) titleEl.innerHTML = `Tab<span>tree</span> · Mes cartes`
+    if(titleEl) titleEl.innerHTML = `YG<span>mind</span> · Mes cartes`
       + (curFolder ? `<span class="ht-sep">›</span>📁 ${esc(curFolder.name)}` : "");
     grid.innerHTML = "";
 
@@ -1664,7 +1822,7 @@
   // ---------- Pictogrammes : nettoyage (frontière de confiance) ----------
   // Un pictogramme est du SVG que l'on INLINE dans le rendu — contrairement aux images,
   // qui restent enfermées dans un <image href="data:…">. On ne fait donc jamais confiance
-  // à la chaîne reçue (réponse d'un modèle, fichier .tabtree importé) : on la RECONSTRUIT
+  // à la chaîne reçue (réponse d'un modèle, carte importée) : on la RECONSTRUIT
   // à partir d'une liste blanche stricte. Aucun href, style, class ni on* ne survit —
   // ni script, ni requête réseau, ni fuite de données par une image de fond.
   // fill/stroke sont retirés eux aussi : le style vient du nœud (voir nodeSVG).
@@ -2342,7 +2500,7 @@
     const t = boardClip.shapes.concat(boardClip.stickies).map(o=>(o.text||"").trim()).filter(Boolean);
     if(t.length) return t.join("\n");
     const n = boardClip.images.length;
-    return n ? `🖼 ${n} image${n>1?"s":""} (Tabtree)` : "◻︎ éléments Tabtree";
+    return n ? `🖼 ${n} image${n>1?"s":""} (TabTree)` : "◻︎ éléments TabTree";
   }
   // Colle au point (wx,wy) s'il est fourni, sinon au centre de la vue.
   function pasteBoardClip(wx, wy){
@@ -2366,7 +2524,7 @@
   }
   // Copier / coller le TEXTE d'un élément du board (bloc de texte, forme, post-it).
   // Relais interne : en file:// la lecture du presse-papiers système peut être refusée,
-  // le copier→coller à l'intérieur de Tabtree doit marcher quand même.
+  // le copier→coller à l'intérieur de TabTree doit marcher quand même.
   let boardTextClip = "";
   function elWithText(id){
     return shapes.find(s=>s.id===id) || stickies.find(s=>s.id===id) || null;
@@ -2603,6 +2761,11 @@
       fr.onload = ()=>res(fr.result); fr.onerror = ()=>rej(new Error("lecture impossible"));
       fr.readAsDataURL(file);
     });
+    return dataUrlToImageData(dataUrl);
+  }
+  // Même traitement à partir d'un data URL déjà en mémoire (image générée par l'IA) :
+  // TOUTE image entrant dans le document passe par ici, sinon le stockage explose.
+  async function dataUrlToImageData(dataUrl){
     const img = await new Promise((res,rej)=>{
       const i = new Image();
       i.onload = ()=>res(i); i.onerror = ()=>rej(new Error("format d'image non reconnu"));
@@ -3289,7 +3452,7 @@
     c.children = n.children.map(cloneSubtree);
     return c;
   }
-  // Sérialise un sous-arbre en liste à puces : c'est ce qui rend la copie lisible hors de Tabtree.
+  // Sérialise un sous-arbre en liste à puces : c'est ce qui rend la copie lisible hors de TabTree.
   function subtreeToMarkdown(n){
     const lines = [];
     (function walk(node, depth){
@@ -3412,8 +3575,8 @@
     if(/^image\//i.test(f.type)){ const p = clientToWorld(e.clientX, e.clientY); addImageAt(f, p.x, p.y); }
     else if(/\.xmind$/i.test(f.name)) importXmindFile(f);   // bonus : déposer une carte l'ouvre
     else if(/\.(html?|xhtml)$/i.test(f.name)) importHtmlFile(f);
-    else if(/\.(tabtree|ygmind|json)$/i.test(f.name)) loadJson(f);
-    else alert("Format non reconnu — dépose une image, un .tabtree, un .xmind, un .html ou un .json.");
+    else if(/\.(ygmind|json)$/i.test(f.name)) loadJson(f);
+    else alert("Format non reconnu — dépose une image, un .tabtree, un .ygmind, un .xmind, un .html ou un .json.");
   });
 
   // ---------- Menu contextuel (clic droit sur un nœud) ----------
@@ -3461,8 +3624,9 @@
       { label:"＋ Ajouter un enfant", fn:()=>addChild(id) },
       { label:"＋ Ajouter un frère", fn:()=>addSibling(id) },
       { label:"✨ Développer avec l'IA", fn:()=>expandNode(id) },
-      { label: node.ico ? "🎨 Redessiner le pictogramme" : "🎨 Pictogramme IA", fn:()=>pictoNode(id) },
-      ...(node.ico ? [{ label:"✕ Retirer le pictogramme", fn:()=>clearPicto(id) }] : []),
+      { label:"🖼 Générer une image à partir de ce nœud", fn:()=>openImgGen(node.text) },
+      { label: node.ico ? "🎨 Redessiner l'icône SVG du nœud" : "🎨 Icône SVG au trait (pas une image)", fn:()=>pictoNode(id) },
+      ...(node.ico ? [{ label:"✕ Retirer l'icône SVG", fn:()=>clearPicto(id) }] : []),
       ...(node.children.length>1 ? [{ label:"⇅ Trier les enfants par priorité", fn:()=>sortByPriority(id) }] : []),
       { sep:true },
       { label: focusId===id ? "🔍 Sortir du focus" : "🔍 Focus (isoler)", fn:()=> focusId===id ? clearFocus() : setFocus(id) },
@@ -4039,6 +4203,11 @@
                        : "Aucune clé enregistrée — les fonctions IA sont inactives.";
     st.className = "set-state" + (k ? " ok" : "");
     document.getElementById("setClear").hidden = !k;
+    const g = getImgKey();
+    const gs = document.getElementById("setImgState");
+    gs.textContent = g ? "🔑 Une clé Google est enregistrée (" + aiKeyMask(g) + ")."
+                       : "Aucune clé Google — 🖼 Générer est inactif.";
+    gs.className = "set-state" + (g ? " ok" : "");
   }
   function openAiSettings(){
     return new Promise(res=>{
@@ -4054,21 +4223,87 @@
   function closeAiSettings(){
     document.getElementById("setModal").classList.remove("open");
     document.getElementById("setKey").value = "";   // ne laisse pas la clé en clair dans le DOM
+    document.getElementById("setImgKey").value = "";
     const r = aiKeyResolve; aiKeyResolve = null;
     if(r) r(getStoredKey());
   }
   function saveAiSettings(){
     const v = document.getElementById("setKey").value.trim();
     if(v) storeAiKey(v);            // vide = on garde la clé déjà en place
+    const g = document.getElementById("setImgKey").value.trim();
+    if(g) storeImgKey(g);
     closeAiSettings();
   }
   function clearAiKey(){
     storeAiKey("");
+    storeImgKey("");
     document.getElementById("setKey").value = "";
+    document.getElementById("setImgKey").value = "";
     refreshAiSettings();
   }
   // Les 4 appelants sont tous asynchrones : on peut attendre que l'utilisateur saisisse sa clé.
   async function ensureKey(){ return getStoredKey() || await openAiSettings(); }
+  // Même logique pour la clé Google : openAiSettings() ne résout que sur la clé Claude,
+  // on relit donc getImgKey() après la fermeture du panneau.
+  // Test de clé Google — sépare les trois causes possibles d'un « API key not valid » :
+  // (a) la chaîne stockée est abîmée (copie partielle, caractère invisible collé) ;
+  // (b) la clé n'authentifie pas du tout (mauvais projet, API non activée, restrictions) ;
+  // (c) la clé marche mais ne donne accès à aucun modèle d'images.
+  // GET /v1beta/models répond aux trois d'un coup — et la clé passe par un EN-TÊTE,
+  // jamais par l'URL (une clé dans une query string se retrouve dans les journaux).
+  async function testImgKey(){
+    const el = document.getElementById("setImgState");
+    const k = (document.getElementById("setImgKey").value.trim() || getImgKey());
+    if(!k){ el.className = "set-state"; el.textContent = "Colle d'abord une clé dans le champ ci-dessus."; return; }
+    // (a) forme de la chaîne, sans jamais l'afficher
+    const propre = /^AIza[0-9A-Za-z_-]{30,50}$/.test(k);
+    const bizarre = /\s/.test(k) ? " ⚠️ elle contient une espace ou un retour à la ligne"
+                  : /[^\x20-\x7E]/.test(k) ? " ⚠️ elle contient un caractère invisible"
+                  : "";
+    const forme = "Clé lue : " + k.length + " caractères, commence par « " + k.slice(0,4) + " »"
+      + (propre ? " — forme attendue d'une clé AI Studio." : " — ⚠️ ce n'est PAS la forme d'une clé AI Studio (AIza… + 35 caractères).")
+      + bizarre;
+    el.className = "set-state"; el.textContent = forme + "\nInterrogation de Google…";
+    try{
+      const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models",
+                              { headers: { "x-goog-api-key": k } });
+      const raw = await res.text();
+      imgLastRaw = raw.slice(0, 4000);
+      let data = null; try{ data = JSON.parse(raw); }catch(e){}
+      if(!res.ok){ // (b)
+        const msg = (data && data.error && data.error.message) || ("HTTP " + res.status);
+        el.className = "set-state err";
+        el.textContent = forme + "\n\n❌ Google refuse cette clé : " + msg
+          + "\n\nÀ vérifier, dans l'ordre : la clé vient bien de aistudio.google.com/apikey ;"
+          + " elle a été copiée EN ENTIER ; son projet Google Cloud a l'API « Generative Language »"
+          + " activée ; et elle n'a pas de restriction de site (HTTP referrer) ou d'API.";
+        return;
+      }
+      const noms = ((data && data.models) || []).map(m => String(m.name||"").replace(/^models\//,""));
+      const images = noms.filter(n => /image|imagen/i.test(n));
+      if(!images.length){ // (c)
+        el.className = "set-state err";
+        el.textContent = forme + "\n\n⚠️ La clé est VALIDE (" + noms.length + " modèles accessibles)"
+          + " mais aucun modèle d'images n'y figure.\nC'est un accès manquant côté compte Google"
+          + " (souvent : facturation à activer), pas un défaut de TabTree.";
+        return;
+      }
+      // La clé marche ET expose des modèles d'images : on prend le premier disponible.
+      if(!images.includes(IMG_MODEL)) imgModelOverride = images[0];
+      el.className = "set-state ok";
+      el.textContent = forme + "\n\n✅ Clé valide. Modèles d'images accessibles : " + images.join(", ")
+        + (imgModelOverride ? "\n→ TabTree utilisera « " + imgModelOverride + " »." : "");
+    }catch(e){
+      el.className = "set-state err";
+      el.textContent = forme + "\n\n❌ Appel impossible : " + e.message
+        + "\n(réseau, ou une extension du navigateur qui bloque googleapis.com)";
+    }
+  }
+  async function ensureImgKey(){
+    if(getImgKey()) return getImgKey();
+    await openAiSettings();
+    return getImgKey();
+  }
   function pathToNode(id, node=root, trail=[]){
     const t = trail.concat(node);
     if(node.id === id) return t;
@@ -4139,6 +4374,392 @@ Réponds UNIQUEMENT par la liste, une idée par ligne, sans numéro ni tiret ni 
       btn.disabled = false; btn.textContent = label;
     }
   }
+  // ---------- Modèles de travail ----------
+  // Un modèle n'est PAS du JSON figé : une carte est décrite par un plan indenté que
+  // parseOutline/buildForest sait déjà lire, un board par une liste d'éléments que
+  // layoutGeneratedBoard sait déjà placer. Douze modèles pèsent ainsi quelques Ko au
+  // lieu de quelques dizaines — c'est ce qui les rend compatibles avec le fichier unique.
+  // Corollaire : le serveur MCP peut réutiliser ces mêmes plans tels quels.
+  const TEMPLATES = [
+    { id:"okr", nom:"OKR trimestriels", emoji:"🎯", mode:"map",
+      desc:"Objectifs et résultats clés chiffrés, prêts à cocher.",
+      plan:
+`OKR — T3
+  Objectif 1 — Accélérer l'acquisition
+    [ ] KR1 — 40 nouveaux clients (vs 25 au trimestre passé)
+    [ ] KR2 — Coût d'acquisition sous 300 €
+    [ ] KR3 — 3 partenariats signés
+    Initiatives
+      Refonte de la page d'accueil
+      Campagne ciblée LinkedIn
+  Objectif 2 — Fiabiliser la livraison
+    [ ] KR1 — 95 % des jalons tenus
+    [ ] KR2 — Moins de 5 incidents critiques
+    Initiatives
+      Revue de projet hebdomadaire
+  Objectif 3 — Faire grandir l'équipe
+    [ ] KR1 — 2 recrutements finalisés
+    [ ] KR2 — Un plan de formation par personne` },
+
+    { id:"annuel", nom:"Objectifs annuels", emoji:"📅", mode:"map",
+      desc:"Une année découpée en quatre trimestres et leurs jalons.",
+      plan:
+`Objectifs de l'année
+  T1 — Poser les fondations
+    [ ] Jalon clé du trimestre
+    Chantier structurant
+    Risque à surveiller
+  T2 — Mettre à l'échelle
+    [ ] Jalon clé du trimestre
+    Chantier structurant
+  T3 — Consolider
+    [ ] Jalon clé du trimestre
+    Chantier structurant
+  T4 — Récolter et préparer l'an prochain
+    [ ] Jalon clé du trimestre
+    Bilan de l'année
+  Indicateurs suivis toute l'année
+    Chiffre d'affaires
+    Marge
+    Satisfaction client` },
+
+    { id:"pv", nom:"PV de réunion", emoji:"📝", mode:"map",
+      desc:"Ordre du jour, décisions, actions assignées, points en suspens.",
+      plan:
+`Réunion — sujet — date
+  Participants
+    Présents
+    Excusés
+  Ordre du jour
+    Point 1
+    Point 2
+  Décisions prises
+    Décision 1 — validée par qui ?
+  Actions à mener
+    [ ] Action 1 — responsable — échéance
+    [ ] Action 2 — responsable — échéance
+  Points en suspens
+    À trancher à la prochaine réunion
+  Prochaine réunion
+    Date et objectif` },
+
+    { id:"organigramme", nom:"Organigramme", emoji:"🏛", mode:"map",
+      desc:"Structure d'équipe, des pôles jusqu'aux postes.",
+      plan:
+`Direction générale
+  Pôle Produit
+    Design
+      Designer produit
+    Ingénierie
+      Développement
+      Qualité
+  Pôle Commercial
+    Ventes
+    Marketing
+  Pôle Opérations
+    Administratif et finance
+    Ressources humaines` },
+
+    { id:"vision", nom:"Vision Board", emoji:"✨", mode:"board",
+      desc:"Un tableau d'inspiration — les cadres appellent 🖼 Générer une image.",
+      cols:3,
+      elements:[
+        { kind:"text",   text:"Ma vision — horizon 3 ans" },
+        { kind:"sticky", text:"Ce à quoi ressemble ma réussite", color:"#fff59d" },
+        { kind:"sticky", text:"Ce que je veux ressentir au quotidien", color:"#c5e1a5" },
+        { kind:"sticky", text:"Ce que je refuse de sacrifier", color:"#f8bbd0" },
+        { kind:"rect",   text:"🖼 Image à générer — l'ambiance visée" },
+        { kind:"rect",   text:"🖼 Image à générer — le lieu de travail rêvé" },
+        { kind:"sticky", text:"Première étape concrète, cette semaine", color:"#b3e5fc" }
+      ] },
+
+    { id:"brainstorm", nom:"Brainstorming produit", emoji:"💡", mode:"board",
+      desc:"Du problème aux idées, puis au tri — 🤖 Organiser regroupe ensuite.",
+      elements:[
+        { kind:"text",   text:"Brainstorming — nom du produit" },
+        { kind:"rect",   text:"Le problème qu'on résout", color:"#dbeafe" },
+        { kind:"sticky", text:"Pour qui exactement ?", color:"#fff59d" },
+        { kind:"sticky", text:"Idée 1", color:"#c5e1a5" },
+        { kind:"sticky", text:"Idée 2", color:"#c5e1a5" },
+        { kind:"sticky", text:"Idée 3", color:"#c5e1a5" },
+        { kind:"sticky", text:"Ce qu'on ne fera PAS", color:"#f8bbd0" },
+        { kind:"rect",   text:"À tester en premier", color:"#e1bee7" }
+      ],
+      connections:[{from:1,to:3},{from:1,to:4},{from:1,to:5}] }
+  ];
+
+  // Disposition en grille pour les modèles « mur » : un bloc texte prend toute une ligne
+  // (c'est un titre), le reste se range en `cols` colonnes régulières.
+  function tplGridPlace(elements, cols){
+    const CW = 230, CH = 160, GAP = 26;
+    let col = 0, row = 0;
+    return elements.map(el=>{
+      const estTitre = el.kind === "text";
+      if(estTitre && col !== 0){ col = 0; row++; }
+      const w = estTitre ? (cols*CW + (cols-1)*GAP) : (el.kind === "sticky" ? 190 : 200);
+      const h = estTitre ? 34 : (el.kind === "sticky" ? 130 : 120);
+      const p = { text: el.text, kind: el.kind, w, h,
+                  x: Math.round(col*(CW+GAP)), y: Math.round(row*(CH+GAP)),
+                  color: el.kind === "sticky" ? "#fff59d" : "#ffffff" };
+      if(estTitre){ col = 0; row++; }
+      else if(++col >= cols){ col = 0; row++; }
+      return p;
+    });
+  }
+  // Construit un document complet (jamais affiché) à partir d'un modèle.
+  function tplDoc(t){
+    if(t.mode === "map"){
+      const roots = buildForest(parseOutline(t.plan));
+      let r;
+      if(roots.length === 1) r = roots[0];
+      else { r = makeNode(t.nom); r.children = roots; }
+      return { root:r, images:[], stickies:[], board:false, shapes:[], arrows:[], draws:[] };
+    }
+    const cons = t.connections || [];
+    // Sans connexions, layoutGeneratedBoard met tout au niveau 0 et empile en UNE colonne.
+    // Un modèle « mur » (Vision Board) déclare donc `cols` et se place en grille.
+    const placed = t.cols ? tplGridPlace(t.elements, t.cols) : layoutGeneratedBoard(t.elements, cons, 0, 0);
+    const shs = [], sts = [], ordre = [];
+    placed.forEach((p,i)=>{
+      const col = t.elements[i].color || p.color;
+      if(p.kind === "sticky"){
+        const s = { id: sid(), text:p.text, x:p.x, y:p.y, w:p.w, h:p.h, color:col };
+        sts.push(s); ordre.push(s.id);
+      } else {
+        const s = { id: shid(), kind:p.kind, x:p.x, y:p.y, w:p.w, h:p.h, color:col, text:p.text };
+        shs.push(s); ordre.push(s.id);
+      }
+    });
+    // Flèches accrochées : x1..y2 sont un cache que arrowPts() recalcule au rendu,
+    // on peut donc les laisser à zéro — seuls from/to font foi.
+    const ars = cons.map(c=>({ id: arid(), x1:0, y1:0, x2:0, y2:0,
+                               from: ordre[c.from], to: ordre[c.to] }));
+    return { root: makeNode(t.nom), images:[], stickies:sts, board:true,
+             shapes:shs, arrows:ars, draws:[] };
+  }
+
+  // Aperçu : on rend le modèle avec le MOTEUR DE L'APPLICATION (withDoc bascule les globals),
+  // donc l'aperçu ne peut pas mentir — pas une image stockée, pas une maquette à maintenir.
+  function tplPreviewSVG(t){
+    const doc = tplDoc(t);
+    return withDoc(doc, ()=>{
+      layout();
+      const inner = doc.board
+        ? (imagesSVG() + shapesSVG() + arrowsSVG() + drawsSVG() + stickiesSVG())
+        : (edgesSVG() + nodesSVG());
+      const p = 24, w = Math.max(1, bbox.maxX-bbox.minX), h = Math.max(1, bbox.maxY-bbox.minY);
+      return `<svg viewBox="${r2(bbox.minX-p)} ${r2(bbox.minY-p)} ${r2(w+p*2)} ${r2(h+p*2)}"`
+        + ` preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+    });
+  }
+
+  // ---------- Sélecteur de modèles ----------
+  function openTplPicker(){
+    const grid = document.getElementById("tplGrid");
+    if(!grid.childElementCount){          // rendu une seule fois : les aperçus ne changent pas
+      TEMPLATES.forEach(t=>{
+        const card = document.createElement("button");
+        card.className = "tcard";
+        card.type = "button";
+        card.innerHTML = `<div class="tprev">${tplPreviewSVG(t)}</div>`
+          + `<div class="tname">${esc(t.emoji + " " + t.nom)}</div>`
+          + `<div class="tdesc">${esc(t.desc)}</div>`
+          + `<div class="tmode">${t.mode === "board" ? "Board" : "Carte mentale"}</div>`;
+        card.onclick = ()=>createFromTemplate(t);
+        grid.appendChild(card);
+      });
+    }
+    document.getElementById("tplModal").classList.add("open");
+    setTimeout(()=>document.getElementById("tplContext").focus(), 30);
+  }
+  function closeTplPicker(){ document.getElementById("tplModal").classList.remove("open"); }
+
+  async function createFromTemplate(t){
+    const ctx = document.getElementById("tplContext").value.trim();
+    closeTplPicker();
+    persistCurrent();
+    const doc = tplDoc(t);
+    const json = JSON.stringify(withDoc(doc, serialize));
+    const id = createMapWithJson(t.nom, json, false, doc.board ? "board" : undefined);
+    if(!id) return;
+    switchToMap(id);
+    fit();
+    // La carte se dessine au lieu de surgir d'un bloc — retiré ensuite pour ne pas
+    // rejouer l'animation à chaque rendu suivant (un drag en rejouerait 60 par seconde).
+    vp.classList.add("tpl-enter");
+    setTimeout(()=>vp.classList.remove("tpl-enter"), 700);
+    if(ctx) await adaptDocToContext(ctx, t);
+  }
+
+  // « Adapter à mon contexte » — l'IA réécrit les INTITULÉS, jamais la charpente : on lui
+  // envoie les textes numérotés et on exige le même nombre de lignes dans le même ordre.
+  // Un décompte différent = on n'applique rien (mieux vaut le modèle brut qu'un mélange).
+  function docTexts(){
+    if(boardMode) return shapes.concat(stickies);
+    const out = [];
+    (function walk(n){ out.push(n); n.children.forEach(walk); })(root);
+    return out;
+  }
+  async function adaptDocToContext(ctx, t){
+    const cibles = docTexts();
+    const lignes = cibles.map(o=>o.text || "");
+    const prompt =
+`Voici les intitulés d'un modèle « ${t.nom} », un par ligne, numérotés.
+Réécris-les pour ce contexte : ${ctx}
+
+Règles STRICTES :
+- renvoie EXACTEMENT ${lignes.length} lignes, numérotées de 1 à ${lignes.length}, dans le même ordre ;
+- garde le rôle de chaque ligne (un titre reste un titre, un résultat chiffré reste chiffré) ;
+- reste aussi court que l'original, et garde la même langue ;
+- n'ajoute aucun commentaire avant ou après la liste.
+
+${lignes.map((l,i)=>(i+1) + ". " + l).join("\n")}`;
+    try{
+      if(!(await ensureKey())) return;
+      const brut = await callClaude(prompt, 1600);
+      const rendus = brut.split("\n")
+        .map(l => l.match(/^\s*\d+[.)]\s*(.*)$/))
+        .filter(Boolean).map(m => m[1].trim()).filter(Boolean);
+      if(rendus.length !== lignes.length){
+        alert("Adaptation abandonnée : l'IA a renvoyé " + rendus.length + " intitulés au lieu de "
+          + lignes.length + ".\nLe modèle reste intact — tu peux réessayer depuis ⌘K.");
+        return;
+      }
+      pushHistory();                       // un seul ⌘Z défait toute l'adaptation
+      cibles.forEach((o,i)=>{ o.text = rendus[i]; });
+      render(); fit();
+    }catch(e){
+      alert("Adaptation impossible : " + e.message + "\nLe modèle reste intact.");
+    }
+  }
+
+  document.getElementById("btnTpl").onclick = openTplPicker;
+  document.getElementById("tplClose").onclick = closeTplPicker;
+  document.getElementById("tplModal").addEventListener("pointerdown", (e)=>{
+    if(e.target === document.getElementById("tplModal")) closeTplPicker();
+  });
+  document.getElementById("tplContext").addEventListener("keydown", (e)=>e.stopPropagation());
+  // Échap ferme le sélecteur — en capture, sinon le raccourci « sortir du focus » de la
+  // carte s'exécuterait derrière la fenêtre ouverte.
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape" && document.getElementById("tplModal").classList.contains("open")){
+      e.stopPropagation(); closeTplPicker();
+    }
+  }, true);
+
+  // ---------- Génération d'images (Google Gemini — clé distincte) ----------
+  // Claude ne génère pas d'images : cette fonction est le SEUL endroit qui parle à Google.
+  // ⚠️ N'AJOUTE AUCUN EN-TÊTE ICI. La liste blanche CORS de generativelanguage.googleapis.com
+  // n'accepte que content-type, x-goog-api-key, x-goog-api-client et authorization. Le SDK
+  // officiel envoie « Api-Revision » et se fait refuser au preflight — c'est précisément
+  // pourquoi on écrit l'appel à la main plutôt que d'embarquer une dépendance.
+  const IMG_MODEL = "gemini-3.1-flash-image";
+  const IMG_KEY_STORE = "ygmind.imgkey";
+  const IMG_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
+  function getImgKey(){ try{ return localStorage.getItem(IMG_KEY_STORE) || ""; }catch(e){ return ""; } }
+  function storeImgKey(v){
+    try{ if(v) localStorage.setItem(IMG_KEY_STORE, v); else localStorage.removeItem(IMG_KEY_STORE); }catch(e){}
+  }
+  // La réponse peut placer l'image à plusieurs endroits selon le modèle (output_image, ou
+  // un bloc parmi steps[]). Plutôt que de parier sur une forme, on cherche le premier
+  // couple {données base64 + type image/*} où qu'il soit : robuste à une évolution du schéma.
+  function findImageInJson(node, depth){
+    if(!node || typeof node !== "object" || (depth||0) > 8) return null;
+    if(Array.isArray(node)){
+      for(const v of node){ const r = findImageInJson(v, (depth||0)+1); if(r) return r; }
+      return null;
+    }
+    const mime = node.mime_type || node.mimeType;
+    const data = node.data || node.b64_json || node.bytesBase64Encoded;
+    if(typeof mime === "string" && /^image\//i.test(mime) && typeof data === "string" && data.length > 64){
+      return "data:" + mime + ";base64," + data.replace(/\s+/g, "");
+    }
+    // Repli : certaines réponses portent les octets SANS type MIME voisin. On accepte alors
+    // une chaîne base64 longue sous une clé qui parle d'image — et on devine le type par la
+    // signature des premiers octets (/9j = JPEG, iVBO = PNG, R0lG = GIF, UklG = WebP).
+    for(const k of Object.keys(node)){
+      const v = node[k];
+      if(typeof v === "string" && v.length > 512 && /image|bytes|b64|data/i.test(k)
+         && /^[A-Za-z0-9+/=\s]+$/.test(v)){
+        const b = v.replace(/\s+/g, "");
+        const type = /^\/9j/.test(b) ? "image/jpeg" : /^iVBO/.test(b) ? "image/png"
+                   : /^R0lG/.test(b) ? "image/gif"  : /^UklG/.test(b) ? "image/webp" : "";
+        if(type) return "data:" + type + ";base64," + b;
+      }
+    }
+    for(const k of Object.keys(node)){ const r = findImageInJson(node[k], (depth||0)+1); if(r) return r; }
+    return null;
+  }
+  // Google a DEUX API capables de produire une image, et la disponibilité dépend du modèle
+  // et du niveau du compte. On les essaie dans l'ordre plutôt que de parier sur une seule :
+  // le premier essai qui rend une image gagne. Les erreurs sont conservées et affichées
+  // telles quelles — c'est le message de Google qui dit ce qui manque (facturation, modèle
+  // indisponible, quota), pas une reformulation de notre part.
+  let imgLastRaw = "";        // dernière réponse brute, pour le diagnostic (⌘K)
+  let imgModelOverride = "";  // modèle réellement accessible, découvert par « 🔍 Tester cette clé »
+  function imgModelsToTry(){
+    // Le modèle découvert passe en premier : inutile de rejouer un modèle qu'on sait absent.
+    return [imgModelOverride, IMG_MODEL, "gemini-2.5-flash-image"].filter((m,i,a)=> m && a.indexOf(m)===i);
+  }
+  async function imgTry(url, body, key){
+    const res = await fetch(url, {
+      method: "POST",
+      // ⚠️ AUCUN autre en-tête : voir le commentaire en tête de section (preflight CORS).
+      headers: { "content-type": "application/json", "x-goog-api-key": key },
+      body: JSON.stringify(body)
+    });
+    const raw = await res.text();
+    imgLastRaw = raw.slice(0, 4000);
+    let data = null;
+    try{ data = JSON.parse(raw); }catch(e){}
+    if(!res.ok){
+      let msg = "HTTP " + res.status;
+      const err = data && (Array.isArray(data) ? (data[0]||{}).error : data.error);
+      if(err && err.message) msg = err.message;
+      if(res.status === 429) msg = "quota atteint — " + msg;
+      throw new Error(msg);
+    }
+    const src = findImageInJson(data, 0);
+    if(!src){
+      // 200 sans image : le plus souvent un refus du modèle, expliqué en texte dans la réponse.
+      const txt = (raw.match(/"text"\s*:\s*"([^"]{5,300})"/) || [])[1];
+      throw new Error("réponse sans image" + (txt ? " — le modèle répond : « " + txt + " »" : ""));
+    }
+    return src;
+  }
+  async function generateImage(sujet, ratio){
+    const key = getImgKey();
+    if(!key) throw new Error("Aucune clé Google configurée (⚙︎).");
+    // Une DESCRIPTION suffit rarement quand elle est écrite comme une affirmation
+    // (« X est une entreprise… ») : le modèle répond alors en texte au lieu de dessiner.
+    // On formule donc explicitement une consigne de dessin autour du sujet de l'utilisateur.
+    const prompt = "Dessine une image illustrant le sujet suivant. Produis UNIQUEMENT l'image, "
+      + "sans texte, sans légende et sans mot écrit dans le dessin.\nSujet : " + sujet;
+    const erreurs = [];
+    for(const modele of imgModelsToTry()){
+      // 1) API « interactions » (la plus récente, gère le format d'image demandé)
+      try{
+        return await imgTry(IMG_ENDPOINT, {
+          model: modele,
+          input: [{ type: "text", text: prompt }],
+          response_format: { type: "image", mime_type: "image/jpeg",
+                             aspect_ratio: ratio || "1:1", image_size: "1K" }
+        }, key);
+      }catch(e){ erreurs.push(modele + " (interactions) : " + e.message); }
+      // 2) API « generateContent » classique, encore servie par plusieurs comptes
+      try{
+        return await imgTry(
+          "https://generativelanguage.googleapis.com/v1beta/models/" + modele + ":generateContent", {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseModalities: ["IMAGE"] }
+          }, key);
+      }catch(e){ erreurs.push(modele + " (generateContent) : " + e.message); }
+      // Clé refusée : inutile d'essayer les autres modèles, l'erreur ne changera pas.
+      if(/API key not valid|API_KEY_INVALID/i.test(erreurs[erreurs.length-1])) break;
+    }
+    throw new Error(erreurs.join("\n"));
+  }
+
   // ---------- Pictogramme IA ----------
   // Claude ne génère pas d'images bitmap : on lui demande donc du SVG, ce qui vaut mieux ici.
   // Vectoriel = quelques centaines d'octets (contre ~150 Ko pour un PNG réduit), net à tous
@@ -4189,19 +4810,116 @@ Contraintes STRICTES :
     render();
   }
 
+  // ---------- Panneau 🖼 Générer une image ----------
+  // Aperçu obligatoire : rien n'entre dans le document tant que « Insérer » n'est pas cliqué
+  // (un seul pushHistory, donc un seul ⌘Z pour tout défaire).
+  let imgPending = "";   // data URL de l'image générée, en attente de validation
+  // `amorce` = texte du nœud d'où l'on vient : la description est pré-remplie, l'utilisateur
+  // n'a plus qu'à l'ajuster. C'est le cas d'usage courant (« une image pour CE nœud »).
+  function openImgGen(amorce){
+    imgPending = "";
+    const champ = document.getElementById("imgPrompt");
+    if(amorce && !champ.value.trim()) champ.value = String(amorce).slice(0, 300);
+    document.getElementById("imgPreview").hidden = true;
+    document.getElementById("imgState").hidden = true;
+    document.getElementById("imgInsert").disabled = true;
+    document.getElementById("imgModal").classList.add("open");
+    setTimeout(()=>document.getElementById("imgPrompt").focus(), 30);
+  }
+  function closeImgGen(){
+    document.getElementById("imgModal").classList.remove("open");
+    document.getElementById("imgPreviewEl").removeAttribute("src"); // src="" rechargerait la page
+    imgPending = "";
+  }
+  function imgSay(msg, isErr){
+    const el = document.getElementById("imgState");
+    el.textContent = msg;
+    el.className = "img-state" + (isErr ? " err" : "");
+    el.hidden = !msg;
+  }
+  async function runImgGen(){
+    const prompt = document.getElementById("imgPrompt").value.trim();
+    if(!prompt){ imgSay("Décris d'abord l'image à générer.", true); return; }
+    // Pas de clé : on ouvre les réglages et on enchaîne tout seul (même geste que ensureKey
+    // côté Claude) — plutôt que de renvoyer l'utilisateur chercher un bouton.
+    if(!(await ensureImgKey())){
+      imgSay("Aucune clé Google enregistrée — la génération d'images est inactive.", true);
+      return;
+    }
+    const btn = document.getElementById("imgRun");
+    const label = btn.textContent;
+    btn.disabled = true; btn.textContent = "✨ …";
+    document.getElementById("imgInsert").disabled = true;
+    imgSay("Génération en cours (compte 10 à 30 secondes)…", false);
+    try{
+      const src = await generateImage(prompt, document.getElementById("imgRatio").value);
+      imgPending = src;
+      document.getElementById("imgPreviewEl").src = src;
+      document.getElementById("imgPreview").hidden = false;
+      document.getElementById("imgInsert").disabled = false;
+      imgSay("Image prête. « Insérer » l'ajoute au centre de la vue.", false);
+    }catch(e){
+      imgPending = "";
+      document.getElementById("imgPreview").hidden = true;
+      imgSay("Génération impossible : " + e.message, true);
+    }finally{
+      btn.disabled = false; btn.textContent = label;
+    }
+  }
+  async function insertGeneratedImage(){
+    if(!imgPending) return;
+    const btn = document.getElementById("imgInsert");
+    btn.disabled = true;
+    try{
+      // Même pipeline que pour une image importée : réduction + ré-encodage AVANT stockage.
+      const { src, w, h } = await dataUrlToImageData(imgPending);
+      const k = Math.min(1, 320 / Math.max(w, h));
+      const dw = Math.max(24, Math.round(w*k)), dh = Math.max(24, Math.round(h*k));
+      const c = viewCenterWorld();
+      pushHistory();
+      if(focusId) focusId = null;   // les images vivent sur la carte complète
+      const im = { id: iid(), src, x: Math.round(c.x - dw/2), y: Math.round(c.y - dh/2), w: dw, h: dh };
+      images.push(im);
+      closeImgGen();
+      selectImage(im.id);
+      render();
+    }catch(e){
+      btn.disabled = false;
+      imgSay("Insertion impossible : " + e.message, true);
+    }
+  }
+  document.getElementById("btnImgGen").onclick = openImgGen;
+  document.getElementById("imgRun").onclick = runImgGen;
+  document.getElementById("imgInsert").onclick = insertGeneratedImage;
+  document.getElementById("imgCancel").onclick = closeImgGen;
+  document.getElementById("imgModal").addEventListener("pointerdown", (e)=>{
+    if(e.target === document.getElementById("imgModal")) closeImgGen();
+  });
+  document.getElementById("imgPrompt").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" && (e.metaKey || e.ctrlKey)){ e.preventDefault(); runImgGen(); }
+    e.stopPropagation();   // sinon Entrée/Suppr atteignent les raccourcis de la carte
+  });
+  document.getElementById("imgRatio").addEventListener("keydown", (e)=>e.stopPropagation());
+
   document.getElementById("btnExpand").onclick = ()=> expandNode(selectedId || root.id);
   document.getElementById("btnPicto").onclick = ()=> pictoNode(selectedId || root.id);
   document.getElementById("btnAiKey").onclick = ()=>openAiSettings();
   document.getElementById("setModel").textContent = AI_MODEL;
+  document.getElementById("setImgModel").textContent = IMG_MODEL;
   document.getElementById("setSave").onclick = saveAiSettings;
   document.getElementById("setCancel").onclick = closeAiSettings;
   document.getElementById("setClear").onclick = clearAiKey;
+  document.getElementById("setImgTest").onclick = testImgKey;
   document.getElementById("setModal").addEventListener("pointerdown", (e)=>{
     if(e.target===document.getElementById("setModal")) closeAiSettings();
   });
-  document.getElementById("setKey").addEventListener("keydown", (e)=>{
-    if(e.key==="Enter"){ e.preventDefault(); saveAiSettings(); }
-    e.stopPropagation();   // sinon Entrée/Suppr atteignent les raccourcis de la carte
+  // Les DEUX champs de clé, en boucle : un champ ajouté sans son gestionnaire donnerait une
+  // saisie qui « ne fait rien » à la touche Entrée — et la clé serait silencieusement perdue.
+  ["setKey","setImgKey"].forEach(id=>{
+    document.getElementById(id).addEventListener("keydown", (e)=>{
+      if(e.key==="Enter"){ e.preventDefault(); saveAiSettings(); }
+      e.stopPropagation();   // sinon Entrée/Suppr atteignent les raccourcis de la carte
+    });
   });
 
   // ---------- Board : organiser une sélection par thèmes (IA) ----------
@@ -4959,13 +5677,14 @@ Réponds dans la langue du besoin.`;
 
   // ---------- [DÉMO] Section « Sauvegarde auto » retirée ----------
   // Stubs générés : mêmes noms, aucun effet — l'interface explique la version complète.
-  let BK_DB, BK_STORE, BK_DIR_KEY, BK_MANIFEST, hasDirFSA, backupDir, backupOk, backupTimer, backupBusy, backupAgain, backupPending, backupLastAt, backupLastErr, libraryWasEmpty, backupSigs;
+  let BK_DB, BK_STORE, BK_DIR_KEY, BK_MANIFEST, hasDirFSA, backupDir, backupOk, backupTimer, backupBusy, backupAgain, backupPending, backupLastAt, backupLastErr, libraryWasEmpty, backupSigs, BK_EXT, BK_EXT_LEGACY;
   function idbOpen(){}
   async function idbGet(){}
   async function idbPut(){}
   async function idbDel(){}
   function bkSafeName(){}
   function bkFileFor(){}
+  function bkLegacyFileFor(){}
   function bkManifestJson(){}
   async function bkPerm(){}
   async function bkWrite(){}
@@ -4999,7 +5718,7 @@ Réponds dans la langue du besoin.`;
         const doc = deserialize(JSON.parse(fr.result));
         // Ouvrir un fichier = nouvelle carte dans la bibliothèque (n'écrase jamais la carte ouverte)
         persistCurrent();
-        const name = (file.name||"").replace(/(\.(tabtree|ygmind))?(\.json)?$/i, "") || doc.root.text || "Carte importée";
+        const name = (file.name||"").replace(/\.tabtree\.json$|\.ygmind\.json$|\.json$/i, "") || doc.root.text || "Carte importée";
         const id = createMapWithJson(name, JSON.stringify(serializeDoc(doc)), false, doc.board ? "board" : undefined); // nom figé (fichier)
         if(id) switchToMap(id);
       }
@@ -5145,8 +5864,9 @@ Réponds dans la langue du besoin.`;
       add("Nœud", "Retirer la priorité", "0", ()=>setPrioritySel(null));
       add("Nœud", "Trier les enfants par priorité", "", ()=>sortByPriority(id));
       add("Nœud", "Développer avec l'IA", "", ()=>expandNode(id));
-      add("Nœud", "Pictogramme IA", "", ()=>pictoNode(id));
-      if((find(id)||{}).node && find(id).node.ico) add("Nœud", "Retirer le pictogramme", "", ()=>clearPicto(id));
+      add("Nœud", "Générer une IMAGE à partir de ce nœud", "", ()=>openImgGen(((find(id)||{}).node||{}).text));
+      add("Nœud", "Icône SVG au trait dans le nœud (pas une image)", "", ()=>pictoNode(id));
+      if((find(id)||{}).node && find(id).node.ico) add("Nœud", "Retirer l'icône SVG", "", ()=>clearPicto(id));
       if(root && id !== root.id) add("Nœud", "Focaliser sur ce nœud", "", ()=>setFocus(id));
       if(focusId) add("Nœud", "Sortir du focus", "Échap", ()=>clearFocus());
       PAL_COLORS.forEach(([n,hex])=>add("Couleur", "Couleur : " + n, "", ()=>setColorSel(hex)));
@@ -5177,6 +5897,13 @@ Réponds dans la langue du besoin.`;
     add("Fichier", "Enregistrer dans le fichier", "⌘S", ()=>saveToFile(false));
     add("Fichier", "Enregistrer sous…", "⌘⇧S", ()=>saveToFile(true));
     add("Fichier", "Ouvrir un fichier…", "", ()=>openFromFile());
+    add("Modèles", "Partir d'un modèle (OKR, PV de réunion, Vision Board…)", "", ()=>openTplPicker());
+    TEMPLATES.forEach(t=>add("Modèles", "Nouveau : " + t.nom, "", ()=>createFromTemplate(t)));
+    add("Image", "Générer une image avec l'IA", "", ()=>openImgGen());
+    add("Image", "Diagnostic : dernière réponse de Google", "", ()=>{
+      if(!imgLastRaw){ alert("Aucun appel de génération d'image n'a encore été fait dans cet onglet."); return; }
+      prompt("Réponse brute de Google (⌘C pour copier) :", imgLastRaw);
+    });
     add("Fichier", "Exporter en PNG", "", ()=>exportPng());
     add("Fichier", "Exporter en PDF", "", ()=>exportPdf());
     add("Fichier", "Exporter en Markdown", "", ()=>exportMarkdown());
@@ -5300,7 +6027,7 @@ Réponds dans la langue du besoin.`;
     return (id && vp.querySelector('g[data-id="' + id + '"]')) || null;
   }
   const TOUR_STEPS = [
-    { t:"Bienvenue dans Tabtree 👋",
+    { t:"Bienvenue dans TabTree 👋",
       h:"Cette appli tient dans <b>un seul fichier</b> : pas de compte, pas de serveur, pas d'abonnement. Tes cartes restent sur ton ordinateur. Deux minutes et tu sais t'en servir.",
       btn:"C'est parti" },
     { t:"Le sujet central",
@@ -5323,7 +6050,7 @@ Réponds dans la langue du besoin.`;
       h:"Une carte n'est jamais seule : « 🗂 Cartes » réunit ta bibliothèque et tes dossiers, et permet d'en créer d'autres — y compris des <b>boards</b>, des tableaux blancs libres pour dessiner.",
       el:()=>document.getElementById("btnHome"), do:"Clique sur 🗂 Cartes", wait:["home"] },
     { t:"🛟 Sauvegarde auto — le seul réflexe à prendre",
-      h:"Choisis un dossier de ton disque : Tabtree y recopie <b>toute</b> ta bibliothèque à chaque modification. C'est ce qui te protège si tu changes de navigateur, de profil ou de machine — fais-le dès aujourd'hui.",
+      h:"Choisis un dossier de ton disque : TabTree y recopie <b>toute</b> ta bibliothèque à chaque modification. C'est ce qui te protège si tu changes de navigateur, de profil ou de machine — fais-le dès aujourd'hui.",
       el:()=>document.getElementById("homeBackup") },
     { t:"⌘K — si tu ne retiens qu'une chose",
       h:"Tape ce que tu veux faire : la palette trouve l'action, l'exécute, et t'<b>apprend son raccourci</b> au passage. Elle ouvre aussi tes autres cartes. C'est le raccourci qui remplace tous les autres.",
@@ -5815,7 +6542,7 @@ Réponds dans la langue du besoin.`;
       m.id = "demoModal";
       m.innerHTML = `<div class="dbox">
         <h3>🔒 <span id="demoFeat"></span></h3>
-        <p>Cette fonction fait partie de la <b>version complète</b> de Tabtree — la démo permet de tout essayer, mais seule la version complète laisse <b>emporter</b> votre travail.</p>
+        <p>Cette fonction fait partie de la <b>version complète</b> de TabTree — la démo permet de tout essayer, mais seule la version complète laisse <b>emporter</b> votre travail.</p>
         <ul>
           <li>💾 Fichiers <b>.tabtree</b> sur votre disque + 🛟 sauvegarde automatique</li>
           <li>🖼 Exports <b>PNG, PDF, Markdown</b> sans filigrane</li>
