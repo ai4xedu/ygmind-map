@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" width="180" height="40" role="img" aria-label="Tabtree">
+  <title>Tabtree</title>
+  <!-- Signature horizontale. Le texte utilise la pile système : pour un usage print ou hors navigateur,
+       vectoriser le texte. Version pour fond sombre. -->
+  <g transform="translate(2 5)">
+    <g fill="none" stroke="#6ea8ff" stroke-width="2.44" stroke-linecap="round">
+      <path d="M7.97 10.31H22.03"/>
+      <path d="M15 10.31V22.5"/>
+    </g>
+    <g fill="#6ea8ff">
+      <circle cx="7.13" cy="10.31" r="3"/>
+      <circle cx="22.88" cy="10.31" r="3"/>
+      <circle cx="15" cy="23.25" r="3"/>
+    </g>
+  </g>
+  <text x="42" y="28" font-family="system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif"
+        font-size="27" font-weight="800" letter-spacing="-.4" fill="#e8ebf2">Tab<tspan fill="#6ea8ff">tree</tspan></text>
+</svg>

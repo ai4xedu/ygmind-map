@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" color="#3b82f6" role="img" aria-label="Tabtree">
+  <title>Tabtree</title>
+  <!-- Signe : le tracé utilise currentColor.
+       L'attribut color ci-dessus n'est qu'un repli pour un usage en <img> ou à l'ouverture directe :
+       inliné dans une page, une règle CSS `color` appliquée au SVG le remplace.
+       Signe : un « T » construit avec le vocabulaire du produit — trois nœuds reliés. -->
+  <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+    <path d="M8.5 11H23.5"/>
+    <path d="M16 11V24"/>
+  </g>
+  <g fill="currentColor">
+    <circle cx="7.6" cy="11" r="3.2"/>
+    <circle cx="24.4" cy="11" r="3.2"/>
+    <circle cx="16" cy="24.8" r="3.2"/>
+  </g>
+</svg>
