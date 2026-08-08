@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>YGmind — Démo</title>
+<title>Tabtree — Démo</title>
 <meta name="robots" content="noindex">
 <style>
   :root{
@@ -375,7 +375,7 @@
 </head>
 <body>
   <div id="toolbar">
-    <div class="brand">YG<span>mind</span></div>
+    <div class="brand">Tab<span>tree</span></div>
     <button class="tb" id="btnHome" title="Mes cartes (bibliothèque)">🗂 Cartes</button>
     <button class="tb" id="btnPalette" title="Toutes les commandes (Cmd/Ctrl+K)">⌘K Commandes</button>
     <div class="sep"></div>
@@ -416,13 +416,13 @@
     <button class="tb" id="btnPdf">📄 PDF</button>
     <button class="tb mm-only" id="btnMdImport" title="Importer une liste / du Markdown">📥 Markdown</button>
     <button class="tb mm-only" id="btnMdExport" title="Exporter en Markdown">📝 .md</button>
-    <button class="tb" id="btnSave" title="Enregistrer dans un fichier .ygmind (Cmd/Ctrl+S)">💾 Enregistrer</button>
-    <button class="tb" id="btnLoad" title="Ouvrir un fichier .json (YGmind) ou .xmind (import XMind)">📂 Ouvrir</button>
+    <button class="tb" id="btnSave" title="Enregistrer dans un fichier .tabtree (Cmd/Ctrl+S)">💾 Enregistrer</button>
+    <button class="tb" id="btnLoad" title="Ouvrir un fichier .json (Tabtree) ou .xmind (import XMind)">📂 Ouvrir</button>
     <button class="tb" id="btnPublish" title="Générer les fichiers pour publier cette carte sur un lien web (GitHub Pages, Netlify…)">🌐 Publier</button>
     <button class="tb" id="btnNew" title="Créer une nouvelle carte">✦ Nouvelle carte</button>
     <div class="sep"></div>
     <button class="tb" id="btnTheme" title="Basculer thème clair / sombre">🌙</button>
-    <input type="file" id="fileInput" accept="application/json,.json,.ygmind,.xmind,text/html,.html,.htm,.xhtml" style="display:none">
+    <input type="file" id="fileInput" accept="application/json,.json,.tabtree,.ygmind,.xmind,text/html,.html,.htm,.xhtml" style="display:none">
   </div>
 
   <div id="breadcrumb"></div>
@@ -437,7 +437,7 @@
 
   <div id="home">
     <div class="home-head">
-      <div class="home-title">YG<span>mind</span> · Mes cartes</div>
+      <div class="home-title">Tab<span>tree</span> · Mes cartes</div>
       <div class="bk-stat" id="bkStat"></div>
       <div class="home-actions">
         <button class="tb primary" id="homeNew">＋ Nouvelle carte</button>
@@ -520,10 +520,10 @@
     <div class="mbox">
       <h3>⚙︎ Réglages — IA (facultatif)</h3>
       <p>
-        YGmind marche entièrement <b>sans IA</b>. Pour activer 🤖 Copilote, 🤖 Organiser et
+        Tabtree marche entièrement <b>sans IA</b>. Pour activer 🤖 Copilote, 🤖 Organiser et
         ✨ Développer, colle ta clé API Claude. Elle est enregistrée <b>sur cet appareil</b>
         (stockage local du navigateur), n'est envoyée qu'à <code>api.anthropic.com</code> et
-        n'est <b>jamais</b> incluse dans un export <code>.ygmind</code>, <code>.json</code> ou <code>.md</code>.
+        n'est <b>jamais</b> incluse dans un export <code>.tabtree</code>, <code>.json</code> ou <code>.md</code>.
       </p>
       <div class="set-state" id="setState"></div>
       <label for="setKey">Clé API Claude</label>
@@ -1297,7 +1297,7 @@
   function quotaAlert(){
     if(quotaWarned) return;
     quotaWarned = true;
-    alert("⚠️ SAUVEGARDE IMPOSSIBLE — le stockage du navigateur est plein (souvent des images trop lourdes).\n\nTon travail récent N'EST PAS sauvegardé. Fais tout de suite Cmd/Ctrl+S pour enregistrer cette carte dans un fichier .ygmind sur ton disque, puis allège ou supprime des images.");
+    alert("⚠️ SAUVEGARDE IMPOSSIBLE — le stockage du navigateur est plein (souvent des images trop lourdes).\n\nTon travail récent N'EST PAS sauvegardé. Fais tout de suite Cmd/Ctrl+S pour enregistrer cette carte dans un fichier .tabtree sur ton disque, puis allège ou supprime des images.");
   }
   function saveMapsIndex(){
     const json = JSON.stringify({ v:1, currentId: currentMapId, maps: mapsMeta, folders: foldersMeta });
@@ -1338,7 +1338,7 @@
       quotaChecking = false;
       if(est && est.quota && est.usage/est.quota > 0.8){
         quotaNearWarned = true;
-        alert("⚠️ Ton stockage local est presque plein (" + Math.round(est.usage/est.quota*100) + "%).\n\nEnregistre tes cartes dans des fichiers .ygmind (Cmd/Ctrl+S) pour ne rien risquer, et allège les images.");
+        alert("⚠️ Ton stockage local est presque plein (" + Math.round(est.usage/est.quota*100) + "%).\n\nEnregistre tes cartes dans des fichiers .tabtree (Cmd/Ctrl+S) pour ne rien risquer, et allège les images.");
       }
     }).catch(()=>{ quotaChecking = false; });
   }
@@ -1549,7 +1549,7 @@
     if(currentFolderId && !foldersMeta.some(f=>f.id===currentFolderId)) currentFolderId = null;
     const curFolder = currentFolderId ? foldersMeta.find(f=>f.id===currentFolderId) : null;
     const titleEl = document.querySelector("#home .home-title");
-    if(titleEl) titleEl.innerHTML = `YG<span>mind</span> · Mes cartes`
+    if(titleEl) titleEl.innerHTML = `Tab<span>tree</span> · Mes cartes`
       + (curFolder ? `<span class="ht-sep">›</span>📁 ${esc(curFolder.name)}` : "");
     grid.innerHTML = "";
 
@@ -1651,7 +1651,7 @@
   // ---------- Pictogrammes : nettoyage (frontière de confiance) ----------
   // Un pictogramme est du SVG que l'on INLINE dans le rendu — contrairement aux images,
   // qui restent enfermées dans un <image href="data:…">. On ne fait donc jamais confiance
-  // à la chaîne reçue (réponse d'un modèle, fichier .ygmind importé) : on la RECONSTRUIT
+  // à la chaîne reçue (réponse d'un modèle, fichier .tabtree importé) : on la RECONSTRUIT
   // à partir d'une liste blanche stricte. Aucun href, style, class ni on* ne survit —
   // ni script, ni requête réseau, ni fuite de données par une image de fond.
   // fill/stroke sont retirés eux aussi : le style vient du nœud (voir nodeSVG).
@@ -2329,7 +2329,7 @@
     const t = boardClip.shapes.concat(boardClip.stickies).map(o=>(o.text||"").trim()).filter(Boolean);
     if(t.length) return t.join("\n");
     const n = boardClip.images.length;
-    return n ? `🖼 ${n} image${n>1?"s":""} (YGmind)` : "◻︎ éléments YGmind";
+    return n ? `🖼 ${n} image${n>1?"s":""} (Tabtree)` : "◻︎ éléments Tabtree";
   }
   // Colle au point (wx,wy) s'il est fourni, sinon au centre de la vue.
   function pasteBoardClip(wx, wy){
@@ -2353,7 +2353,7 @@
   }
   // Copier / coller le TEXTE d'un élément du board (bloc de texte, forme, post-it).
   // Relais interne : en file:// la lecture du presse-papiers système peut être refusée,
-  // le copier→coller à l'intérieur de YGmind doit marcher quand même.
+  // le copier→coller à l'intérieur de Tabtree doit marcher quand même.
   let boardTextClip = "";
   function elWithText(id){
     return shapes.find(s=>s.id===id) || stickies.find(s=>s.id===id) || null;
@@ -3276,7 +3276,7 @@
     c.children = n.children.map(cloneSubtree);
     return c;
   }
-  // Sérialise un sous-arbre en liste à puces : c'est ce qui rend la copie lisible hors de YGmind.
+  // Sérialise un sous-arbre en liste à puces : c'est ce qui rend la copie lisible hors de Tabtree.
   function subtreeToMarkdown(n){
     const lines = [];
     (function walk(node, depth){
@@ -3399,8 +3399,8 @@
     if(/^image\//i.test(f.type)){ const p = clientToWorld(e.clientX, e.clientY); addImageAt(f, p.x, p.y); }
     else if(/\.xmind$/i.test(f.name)) importXmindFile(f);   // bonus : déposer une carte l'ouvre
     else if(/\.(html?|xhtml)$/i.test(f.name)) importHtmlFile(f);
-    else if(/\.(ygmind|json)$/i.test(f.name)) loadJson(f);
-    else alert("Format non reconnu — dépose une image, un .ygmind, un .xmind, un .html ou un .json.");
+    else if(/\.(tabtree|ygmind|json)$/i.test(f.name)) loadJson(f);
+    else alert("Format non reconnu — dépose une image, un .tabtree, un .xmind, un .html ou un .json.");
   });
 
   // ---------- Menu contextuel (clic droit sur un nœud) ----------
@@ -4910,7 +4910,7 @@ Réponds dans la langue du besoin.`;
   async function exportPng(){ demoUpsell("Export PNG haute résolution"); }
   async function exportPdf(){ demoUpsell("Export PDF"); }
 
-  // ---------- Sauvegarde sur vrai fichier (.ygmind) ----------
+  // ---------- Sauvegarde sur vrai fichier (.tabtree) ----------
   const mapFileHandles = new Map();   // mapId -> FileSystemFileHandle (session)
   let fileDirty = false;              // la carte a-t-elle changé depuis la dernière sauvegarde fichier ?
   const hasFSA = ()=> typeof window.showSaveFilePicker === "function";
@@ -4923,14 +4923,14 @@ Réponds dans la langue du besoin.`;
     b.textContent = "💾 " + (saveFailed ? "⚠️ Enregistrer" : (handled ? (fileDirty ? "Enregistrer •" : "Enregistré ✓") : "Enregistrer"));
     b.title = handled
       ? (fileDirty ? "Modifications non enregistrées dans le fichier (Cmd/Ctrl+S)" : "À jour dans le fichier")
-      : "Enregistrer cette carte dans un fichier .ygmind (Cmd/Ctrl+S)";
+      : "Enregistrer cette carte dans un fichier .tabtree (Cmd/Ctrl+S)";
   }
-  async function saveToFile(forceNew){ demoUpsell("Enregistrer en fichier .ygmind sur votre disque"); }
+  async function saveToFile(forceNew){ demoUpsell("Enregistrer en fichier .tabtree sur votre disque"); }
   async function openFromFile(){
     if(!(typeof window.showOpenFilePicker === "function")){ fileInput.click(); return; }
     try{
       const [handle] = await window.showOpenFilePicker({
-        types: [{ description:"Cartes & imports", accept:{ "application/json":[".ygmind",".json",".xmind"], "text/html":[".html",".htm",".xhtml"] } }]
+        types: [{ description:"Cartes & imports", accept:{ "application/json":[".tabtree",".ygmind",".json",".xmind"], "text/html":[".html",".htm",".xhtml"] } }]
       });
       const file = await handle.getFile();
       if(/\.xmind$/i.test(file.name)){ importXmindFile(file); return; }
@@ -4938,7 +4938,7 @@ Réponds dans la langue du besoin.`;
       const text = await file.text();
       const doc = deserialize(JSON.parse(text));
       persistCurrent();
-      const name = (file.name||"").replace(/\.ygmind$|\.json$/i, "") || doc.root.text || "Carte";
+      const name = (file.name||"").replace(/\.tabtree$|\.ygmind$|\.json$/i, "") || doc.root.text || "Carte";
       const id = createMapWithJson(name, JSON.stringify(serializeDoc(doc)), false, doc.board ? "board" : undefined);
       if(id){ mapFileHandles.set(id, handle); switchToMap(id); } // poignée mémorisée → Cmd+S réécrit le fichier
     }catch(e){ if(!(e && e.name==="AbortError")) alert("Ouverture impossible : " + e.message); }
@@ -4986,7 +4986,7 @@ Réponds dans la langue du besoin.`;
         const doc = deserialize(JSON.parse(fr.result));
         // Ouvrir un fichier = nouvelle carte dans la bibliothèque (n'écrase jamais la carte ouverte)
         persistCurrent();
-        const name = (file.name||"").replace(/\.ygmind\.json$|\.json$/i, "") || doc.root.text || "Carte importée";
+        const name = (file.name||"").replace(/(\.(tabtree|ygmind))?(\.json)?$/i, "") || doc.root.text || "Carte importée";
         const id = createMapWithJson(name, JSON.stringify(serializeDoc(doc)), false, doc.board ? "board" : undefined); // nom figé (fichier)
         if(id) switchToMap(id);
       }
@@ -5287,7 +5287,7 @@ Réponds dans la langue du besoin.`;
     return (id && vp.querySelector('g[data-id="' + id + '"]')) || null;
   }
   const TOUR_STEPS = [
-    { t:"Bienvenue dans YGmind 👋",
+    { t:"Bienvenue dans Tabtree 👋",
       h:"Cette appli tient dans <b>un seul fichier</b> : pas de compte, pas de serveur, pas d'abonnement. Tes cartes restent sur ton ordinateur. Deux minutes et tu sais t'en servir.",
       btn:"C'est parti" },
     { t:"Le sujet central",
@@ -5310,7 +5310,7 @@ Réponds dans la langue du besoin.`;
       h:"Une carte n'est jamais seule : « 🗂 Cartes » réunit ta bibliothèque et tes dossiers, et permet d'en créer d'autres — y compris des <b>boards</b>, des tableaux blancs libres pour dessiner.",
       el:()=>document.getElementById("btnHome"), do:"Clique sur 🗂 Cartes", wait:["home"] },
     { t:"🛟 Sauvegarde auto — le seul réflexe à prendre",
-      h:"Choisis un dossier de ton disque : YGmind y recopie <b>toute</b> ta bibliothèque à chaque modification. C'est ce qui te protège si tu changes de navigateur, de profil ou de machine — fais-le dès aujourd'hui.",
+      h:"Choisis un dossier de ton disque : Tabtree y recopie <b>toute</b> ta bibliothèque à chaque modification. C'est ce qui te protège si tu changes de navigateur, de profil ou de machine — fais-le dès aujourd'hui.",
       el:()=>document.getElementById("homeBackup") },
     { t:"⌘K — si tu ne retiens qu'une chose",
       h:"Tape ce que tu veux faire : la palette trouve l'action, l'exécute, et t'<b>apprend son raccourci</b> au passage. Elle ouvre aussi tes autres cartes. C'est le raccourci qui remplace tous les autres.",
@@ -5561,7 +5561,7 @@ Réponds dans la langue du besoin.`;
       });
 
       // 1. Aller-retour fichier : serialize → JSON → deserialize → serialize
-      await check("Fichier .ygmind : aller-retour serialize/deserialize", ()=>{
+      await check("Fichier .tabtree : aller-retour serialize/deserialize", ()=>{
         const j1 = withDoc(fix, serialize);
         const back = deserialize(JSON.parse(JSON.stringify(j1)));
         const j2 = withDoc(back, serialize);
@@ -5802,9 +5802,9 @@ Réponds dans la langue du besoin.`;
       m.id = "demoModal";
       m.innerHTML = `<div class="dbox">
         <h3>🔒 <span id="demoFeat"></span></h3>
-        <p>Cette fonction fait partie de la <b>version complète</b> de YGmind — la démo permet de tout essayer, mais seule la version complète laisse <b>emporter</b> votre travail.</p>
+        <p>Cette fonction fait partie de la <b>version complète</b> de Tabtree — la démo permet de tout essayer, mais seule la version complète laisse <b>emporter</b> votre travail.</p>
         <ul>
-          <li>💾 Fichiers <b>.ygmind</b> sur votre disque + 🛟 sauvegarde automatique</li>
+          <li>💾 Fichiers <b>.tabtree</b> sur votre disque + 🛟 sauvegarde automatique</li>
           <li>🖼 Exports <b>PNG, PDF, Markdown</b> sans filigrane</li>
           <li>🌐 Publication d'une carte sur un lien web</li>
           <li>Licence à vie, sans abonnement — 1 an de mises à jour inclus</li>
